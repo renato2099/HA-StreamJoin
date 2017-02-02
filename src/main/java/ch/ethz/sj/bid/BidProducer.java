@@ -36,6 +36,7 @@ public class BidProducer extends AbstractProducer {
         while (currBids < totBids) {
             Bid bid = new Bid(random.nextLong() % nAuctionObjs, random.nextDouble(), System.currentTimeMillis());
             // We don't need to send tuples to specify that no more bids will come, we can just ignore them.
+            // TODO update on paper
             bp.sendKafka((int)bid.getObjId()%NUM_PARTS, bid.getStrObjId(), bid.getTs(), bid.toJson());
             currBids ++;
         }
