@@ -23,4 +23,16 @@ public class Bid {
         jsonObject.put("ts", ts);
         return jsonObject.toJSONString();
     }
+
+    public long getObjId() {
+        return objId;
+    }
+
+    public long getTs() {
+        return ts;
+    }
+
+    public String getStrObjId() {
+        return String.valueOf(objId);
+    }
 }

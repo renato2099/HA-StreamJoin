@@ -16,14 +16,10 @@ public class BidProducer extends AbstractProducer {
 
     private static final int BID_SF = 10;
     private static final int NUM_PARTS = 16;
-    private static final double BEGIN_FAIL = 0.1;
-    private static final double BEGIN_COMPLETION = 0.5;
+//    private static final double BEGIN_FAIL = 0.1;
+//    private static final double BEGIN_COMPLETION = 0.5;
     private static Logger logger = LoggerFactory.getLogger(BidProducer.class);
     private static Random random = new Random();
-
-    public BidProducer() {
-
-    }
 
     public static void main(String args[]) {
         parseOptions(args);
@@ -37,7 +33,11 @@ public class BidProducer extends AbstractProducer {
         long totBids = nAuctionObjs * BID_SF;
         long currBids = 0;
         // select uniformly at random an object
-        
-        long selAuct = random.nextLong() % nAuctionObjs;
+        while (currBids < totBids) {
+            Bid bid = new Bid(random.nextLong() % nAuctionObjs, random.nextDouble(), System.currentTimeMillis());
+            // We don't need to send tuples to specify that no more bids will come, we can just ignore them.
+            bp.sendKafka((int)bid.getObjId()%NUM_PARTS, bid.getStrObjId(), bid.getTs(), bid.toJson());
+            currBids ++;
+        }
     }
 }
