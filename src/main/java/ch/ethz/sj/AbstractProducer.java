@@ -10,21 +10,26 @@ import java.util.Properties;
  */
 public class AbstractProducer {
     public enum ProducerOpts {
-        KAFKA_URL("kafka"), ZK("zk");
+        KAFKA_URL("kafka"), ZK("zk"), MISSING_PARTITIONS("missing"), SF("sf");;
         String value;
+
         ProducerOpts(String v) {
             this.value = v;
         }
     }
 
-    /**
-     * Kafka url
-     */
     public static final String DEF_KAFKA_URL = "localhost:9092";
     public static final String DEF_ZK_URL = "localhost:2181";
+    public static final long TUPLES_SF = 100;
 
+    // Kafka url
     public static String kafkaUrl = DEF_KAFKA_URL;
+    // Zk url
     public static String zkUrl = DEF_ZK_URL;
+    // missing partitions
+    public static int missParts;
+    // scaling factor
+    public static int sf = 1;
 
     /**
      * Kafka serializer class
@@ -69,12 +74,13 @@ public class AbstractProducer {
 
     /**
      * Wait for l seconds
+     *
      * @param l
      */
     protected void politeWait(long l) {
         try {
             Thread.sleep(l);
-        } catch(InterruptedException ex) {
+        } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
     }
@@ -85,5 +91,30 @@ public class AbstractProducer {
 
     public void setRunning(boolean running) {
         this.running = running;
+    }
+
+    public static void parseOptions(String[] args) {
+        for (String opt : args) {
+            String[] optParts = opt.split("=");
+            ProducerOpts prodOpts = ProducerOpts.valueOf(optParts[0].toLowerCase());
+
+            if (prodOpts != null) {
+                String val = optParts[1];
+                switch (prodOpts) {
+                    case KAFKA_URL:
+                        kafkaUrl = val;
+                        break;
+                    case ZK:
+                        zkUrl = val;
+                        break;
+                    case MISSING_PARTITIONS:
+                        missParts = Integer.parseInt(val);
+                        break;
+                    case SF:
+                        sf = Integer.parseInt(val);
+                        break;
+                }
+            }
+        }
     }
 }
