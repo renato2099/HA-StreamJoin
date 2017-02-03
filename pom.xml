@@ -54,7 +54,7 @@
                             <appendAssemblyId>false</appendAssemblyId>
                             <archive>
                                 <manifest>
-                                    <mainClass>ch.ethz.sj.bid.BidProducer</mainClass>
+                                    <mainClass>ch.ethz.sjoin.producer.BidProducer</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
@@ -74,7 +74,7 @@
                             <appendAssemblyId>false</appendAssemblyId>
                             <archive>
                                 <manifest>
-                                    <mainClass>ch.ethz.sj.ao.AuctionProducer</mainClass>
+                                    <mainClass>ch.ethz.sjoin.producer.AuctionProducer</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
