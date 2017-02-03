@@ -74,13 +74,13 @@
                             <appendAssemblyId>false</appendAssemblyId>
                             <archive>
                                 <manifest>
-                                    <mainClass>ch.ethz.sj.bid.BidProducer</mainClass>
+                                    <mainClass>ch.ethz.sj.ao.AuctionProducer</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
-                            <finalName>bid-producer-${project.version}</finalName>
+                            <finalName>auction-producer-${project.version}</finalName>
                         </configuration>
                         <phase>package</phase>
                         <goals>
