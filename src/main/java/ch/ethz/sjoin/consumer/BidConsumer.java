@@ -37,7 +37,7 @@ public class BidConsumer extends AbstractConsumer {
             if (records.count() > 0) {
                 System.out.println("====>" + records.count());
 
-                break;
+                //break;
             }
 //            for (ConsumerRecord<String, String> record : records)
 //
