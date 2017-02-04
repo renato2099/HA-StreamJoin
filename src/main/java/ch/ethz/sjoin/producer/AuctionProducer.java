@@ -1,6 +1,6 @@
-package ch.ethz.sj.ao;
+package ch.ethz.sjoin.producer;
 
-import ch.ethz.sj.AbstractProducer;
+import ch.ethz.sjoin.model.Auction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,8 +11,6 @@ import java.util.Random;
  * Created by marenato on 02.02.17.
  */
 public class AuctionProducer extends AbstractProducer {
-    // Topic name
-    public static final String AUCTION_TOPIC = "auction-topic";
 
     private static final int NUM_PARTS = 16;
     // TODO do failures
@@ -21,7 +19,13 @@ public class AuctionProducer extends AbstractProducer {
     private static Logger logger = LoggerFactory.getLogger(AuctionProducer.class);
     private static Random random = new Random();
     private HashSet<Long> auctionsProduced;
-    public AuctionProducer() {
+
+    /**
+     * AuctionProducer constructor
+     * @param kafkaTopicName
+     */
+    public AuctionProducer(String kafkaTopicName) {
+        super(kafkaTopicName);
         auctionsProduced = new HashSet<Long>();
     }
 
@@ -30,8 +34,7 @@ public class AuctionProducer extends AbstractProducer {
         random.setSeed(1000L);
         logger.info(String.format("Producing %dK auction objects - Missing %d partitions.", sf, missParts));
         logger.info(String.format("Kafka:%s \t Zk:%s", kafkaUrl, zkUrl));
-        AuctionProducer ap = new AuctionProducer();
-        ap.initializeKafkaProducer(AUCTION_TOPIC, kafkaUrl, zkUrl);
+        AuctionProducer ap = new AuctionProducer(AUCTION_TOPIC);
 
         // generate random numbers and insert them
         long totTuples = sf * TUPLES_SF;
@@ -46,6 +49,7 @@ public class AuctionProducer extends AbstractProducer {
                 currTuples++;
             }
         }
+        ap.closeProducer();
     }
 
     private Auction produceAuction(long currTuples, long totTuples) {

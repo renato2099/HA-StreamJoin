@@ -1,4 +1,4 @@
-package ch.ethz.sj.bid;
+package ch.ethz.sjoin.model;
 
 import org.json.simple.JSONObject;
 
