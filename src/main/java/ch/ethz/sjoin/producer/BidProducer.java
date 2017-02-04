@@ -41,10 +41,10 @@ public class BidProducer extends AbstractProducer {
         // select uniformly at random an object
         while (currBids < totBids) {
             long aucObjId = random.nextInt(Integer.MAX_VALUE) % nAuctionObjs;
-            Bid bid = new Bid(aucObjId, random.nextDouble(), System.currentTimeMillis());
+            Bid bid = new Bid(currBids, aucObjId, random.nextDouble(), System.currentTimeMillis());
             // No punctuacted bid tuples are needed as we can just ignore them if there is no matching auctionObject.
             //logger.debug(bid.toJson());
-            bp.sendKafka((int) aucObjId % NUM_PARTS, bid.getStrObjId(), bid.getTs(), bid.toJson());
+            bp.sendKafka((int) currBids % NUM_PARTS, bid.getStrId(), bid.getTs(), bid.toJson());
             currBids++;
         }
         bp.closeProducer();
