@@ -2,7 +2,9 @@ package ch.ethz.sjoin.consumer;
 
 import ch.ethz.sjoin.KafkaConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.slf4j.Logger;
 
 import java.util.Arrays;
 import java.util.Properties;
@@ -11,6 +13,10 @@ import java.util.Properties;
  * Created by marenato on 03.02.17.
  */
 public class AbstractConsumer extends KafkaConfig {
+    // default tuple batch size
+    public static int BATCH_SIZE = 100;
+    // logger
+    public Logger logger;
     // Kafka consumer
     protected KafkaConsumer<String, String> consumer;
 
@@ -32,5 +38,15 @@ public class AbstractConsumer extends KafkaConfig {
         this.consumer = new KafkaConsumer<String, String>(properties);
         //this.consumer.
         this.consumer.subscribe(Arrays.asList(this.kafkaTopic));
+    }
+
+    public ConsumerRecords<String, String> nextBatch() {
+        ConsumerRecords<String, String> recs = getConsumer().poll(BATCH_SIZE);
+        logger.debug(String.format("%d records read from %s", recs.count(), this.kafkaTopic));
+        return recs;
+    }
+
+    public KafkaConsumer<String, String> getConsumer() {
+        return this.consumer;
     }
 }
