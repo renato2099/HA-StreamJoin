@@ -37,12 +37,12 @@ public class BidConsumer extends AbstractConsumer {
         }
 
         while (true) {
-            ConsumerRecords<String, String> records = bc.nextBatch();
+            ConsumerRecords<Long, String> records = bc.nextBatch();
             if (records.count() > 0) {
                 System.out.println("====>" + records.count());
-                for (ConsumerRecord<String, String> record : records)
+                for (ConsumerRecord<Long, String> record : records)
                 // print the offset,key and value for the consumer records.
-                    System.out.printf("----->>>>>offset = %d, key = %s, value = %s\n",
+                    System.out.printf("----->>>>>offset = %d, key = %d, value = %s\n",
                             record.offset(), record.key(), record.value());
             }
         }

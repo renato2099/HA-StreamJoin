@@ -12,7 +12,7 @@ import java.util.Properties;
 public class AbstractProducer extends KafkaConfig {
 
     // Kafka producer
-    protected KafkaProducer<String, String> producer;
+    protected KafkaProducer<Long, String> producer;
     private volatile boolean running = true;
 
     /**
@@ -27,14 +27,14 @@ public class AbstractProducer extends KafkaConfig {
         properties.put("value.serializer", SERIALIZER);
         this.kafkaTopic = kafkaTopic;
         // TODO this is not going to give us the best performance, change serializer
-        this.producer = new KafkaProducer<String, String>(properties);
+        this.producer = new KafkaProducer<Long, String>(properties);
     }
 
     /**
      * Sends messages into Kafka
      */
-    protected void sendKafka(Integer partition, String key, Long ts, String message) {
-        this.producer.send(new ProducerRecord<String, String>(this.kafkaTopic, partition, ts, key, message));
+    protected void sendKafka(Integer partition, Long key, Long ts, String message) {
+        this.producer.send(new ProducerRecord<Long, String>(this.kafkaTopic, partition, ts, key, message));
     }
 
     /**

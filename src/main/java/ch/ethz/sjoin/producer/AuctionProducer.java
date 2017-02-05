@@ -43,7 +43,7 @@ public class AuctionProducer extends AbstractProducer {
             Auction ao = ap.produceAuction(currTuples, totTuples);
             if (ao != null) {
                 System.out.println(ao.toJson());
-                ap.sendKafka((int)ao.getId()%NUM_PARTS, ao.getStrId(), ao.getTs(), ao.toJson());
+                ap.sendKafka((int)ao.getId()%NUM_PARTS, ao.getId(), ao.getTs(), ao.toJson());
             }
             if (ao != null && ao.getTs() > 0) {
                 currTuples++;

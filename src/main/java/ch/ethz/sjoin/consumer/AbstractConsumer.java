@@ -18,7 +18,7 @@ public class AbstractConsumer extends KafkaConfig {
     // logger
     public Logger logger;
     // Kafka consumer
-    protected KafkaConsumer<String, String> consumer;
+    protected KafkaConsumer<Long, String> consumer;
 
     /**
      * Kafka consumer constructor
@@ -35,18 +35,18 @@ public class AbstractConsumer extends KafkaConfig {
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, DESERIALIZER);
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, DESERIALIZER);
         // TODO this is not going to give us the best performance, change serializer
-        this.consumer = new KafkaConsumer<String, String>(properties);
+        this.consumer = new KafkaConsumer<Long, String>(properties);
         //this.consumer.
         this.consumer.subscribe(Arrays.asList(this.kafkaTopic));
     }
 
-    public ConsumerRecords<String, String> nextBatch() {
-        ConsumerRecords<String, String> recs = getConsumer().poll(BATCH_SIZE);
+    public ConsumerRecords<Long, String> nextBatch() {
+        ConsumerRecords<Long, String> recs = getConsumer().poll(BATCH_SIZE);
         logger.debug(String.format("%d records read from %s", recs.count(), this.kafkaTopic));
         return recs;
     }
 
-    public KafkaConsumer<String, String> getConsumer() {
+    public KafkaConsumer<Long, String> getConsumer() {
         return this.consumer;
     }
 }
