@@ -1,17 +1,13 @@
 package ch.ethz.sjoin.consumer;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.common.PartitionInfo;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Created by marenato on 03.02.17.
  */
 public class BidConsumer extends AbstractConsumer {
-    // logger
-    private static Logger logger = LoggerFactory.getLogger(BidConsumer.class);
     // consumer group id
     private static String DEF_GROUP_ID = "BidConsumerGroup";
 
@@ -31,20 +27,14 @@ public class BidConsumer extends AbstractConsumer {
     public static void main(String[] args) {
         parseOptions(args);
         BidConsumer bc = new BidConsumer();
-        logger.info(String.format("[%s] consuming from topic %s", bc.kafkaGroupId, bc.kafkaTopic));
+        bc.logger.info(String.format("[%s] consuming from topic %s", bc.kafkaGroupId, bc.kafkaTopic));
         for (PartitionInfo partition : bc.getConsumer().partitionsFor(bc.kafkaTopic)) {
-            logger.info(partition.toString());
+            bc.logger.info(partition.toString());
         }
 
         while (true) {
             ConsumerRecords<Long, String> records = bc.nextBatch();
-            if (records.count() > 0) {
-                System.out.println("====>" + records.count());
-                for (ConsumerRecord<Long, String> record : records)
-                // print the offset,key and value for the consumer records.
-                    System.out.printf("----->>>>>offset = %d, key = %d, value = %s\n",
-                            record.offset(), record.key(), record.value());
-            }
+            bc.printRecords(records);
         }
 
     }

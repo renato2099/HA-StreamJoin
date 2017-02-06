@@ -1,5 +1,7 @@
 package ch.ethz.sjoin;
 
+import org.apache.kafka.common.serialization.*;
+
 /**
  * Created by marenato on 03.02.17.
  */
@@ -13,8 +15,10 @@ public abstract class KafkaConfig {
     public static final String DEF_ZK_URL = "localhost:2181";
     public static final long TUPLES_SF = 100;
     // Kafka serializer/deserializer classes
-    public static final String SERIALIZER = "org.apache.kafka.common.serialization.StringSerializer";
-    public static final String DESERIALIZER = "org.apache.kafka.common.serialization.StringDeserializer";
+    public static final String KEY_SERIALIZER = LongSerializer.class.getCanonicalName();
+    public static final String KEY_DESERIALIZER = LongDeserializer.class.getCanonicalName();
+    public static final String VAL_SERIALIZER = StringSerializer.class.getCanonicalName();
+    public static final String VAL_DESERIALIZER = StringDeserializer.class.getCanonicalName();
     // Kafka url
     public static String kafkaUrl = DEF_KAFKA_URL;
     // Zk url

@@ -2,6 +2,7 @@ package ch.ethz.sjoin.consumer;
 
 import ch.ethz.sjoin.KafkaConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
@@ -32,8 +33,8 @@ public class AbstractConsumer extends KafkaConfig {
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         properties.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "30000");
-        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, DESERIALIZER);
-        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, DESERIALIZER);
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, KEY_DESERIALIZER);
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, VAL_DESERIALIZER);
         // TODO this is not going to give us the best performance, change serializer
         this.consumer = new KafkaConsumer<Long, String>(properties);
         //this.consumer.
@@ -48,5 +49,15 @@ public class AbstractConsumer extends KafkaConfig {
 
     public KafkaConsumer<Long, String> getConsumer() {
         return this.consumer;
+    }
+
+    public void printRecords(ConsumerRecords<Long, String> records) {
+        if (records.count() > 0) {
+            System.out.println(String.format("Records received: %d", records.count()));
+            for (ConsumerRecord<Long, String> record : records)
+                // print the offset,key and value for the consumer records.
+                System.out.printf("offset = %d, key = %d, value = %s\n",
+                        record.offset(), record.key(), record.value());
+        }
     }
 }

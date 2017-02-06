@@ -1,6 +1,9 @@
 
 package ch.ethz.sjoin.consumer;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.common.PartitionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +25,16 @@ public class AuctionConsumer extends AbstractConsumer {
     }
 
     public static void main(String [] args) {
+        parseOptions(args);
+        AuctionConsumer ac = new AuctionConsumer();
+        ac.logger.info(String.format("[%s] consuming from topic %s", ac.kafkaGroupId, ac.kafkaTopic));
+        for (PartitionInfo partition : ac.getConsumer().partitionsFor(ac.kafkaTopic)) {
+            ac.logger.info(partition.toString());
+        }
 
+        while (true) {
+            ConsumerRecords<Long, String> records = ac.nextBatch();
+            ac.printRecords(records);
+        }
     }
 }

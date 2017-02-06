@@ -2,7 +2,9 @@ package ch.ethz.sjoin.producer;
 
 import ch.ethz.sjoin.KafkaConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.Properties;
 
@@ -21,10 +23,10 @@ public class AbstractProducer extends KafkaConfig {
      */
     public AbstractProducer(String kafkaTopic) {
         Properties properties = new Properties();
-        properties.put("bootstrap.servers", kafkaUrl);
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaUrl);
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KEY_SERIALIZER);
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, VAL_SERIALIZER);
         properties.put("producer.type", "sync");
-        properties.put("key.serializer", SERIALIZER);
-        properties.put("value.serializer", SERIALIZER);
         this.kafkaTopic = kafkaTopic;
         // TODO this is not going to give us the best performance, change serializer
         this.producer = new KafkaProducer<Long, String>(properties);
