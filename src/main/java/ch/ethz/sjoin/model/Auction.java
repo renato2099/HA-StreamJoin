@@ -1,6 +1,8 @@
 package ch.ethz.sjoin.model;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  * Created by marenato on 02.02.17.
@@ -19,6 +21,24 @@ public class Auction {
 
     public Auction(long id) {
         this.id = id;
+    }
+
+    public Auction(String jsonStr) {
+        JSONObject jObj;
+        long tmpId = -1;
+        String tmpInfo = "";
+        long tmpTs = -1;
+        try {
+            jObj = (JSONObject) new JSONParser().parse(jsonStr);
+            tmpId = Long.valueOf(jObj.get("id").toString());
+            tmpInfo = jObj.get("info").toString();
+            tmpTs = Long.valueOf(jObj.get("ts").toString());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        this.id = tmpId;
+        this.info = tmpInfo;
+        this.ts = tmpTs;
     }
 
     public void setInfo(String i) {
