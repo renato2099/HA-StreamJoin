@@ -15,7 +15,7 @@ public class AuctionProducer extends AbstractProducer {
     private static final int NUM_PARTS = 16;
     // TODO do failures
     private static final double BEGIN_FAIL = 0.1;
-    private static final double BEGIN_COMPLETION = 0.5;
+    private static final double BEGIN_COMPLETION = 1.0;//0.5;
     private static Logger logger = LoggerFactory.getLogger(AuctionProducer.class);
     private static Random random = new Random();
     private HashSet<Long> auctionsProduced;
@@ -37,12 +37,12 @@ public class AuctionProducer extends AbstractProducer {
         AuctionProducer ap = new AuctionProducer(AUCTION_TOPIC);
 
         // generate random numbers and insert them
-        long totTuples = sf * TUPLES_SF;
+        long totTuples = sf * tuplesSf;
         long currTuples = 0;
         while (currTuples < totTuples) {
             Auction ao = ap.produceAuction(currTuples, totTuples);
             if (ao != null) {
-                System.out.println(ao.toJson());
+                logger.debug(ao.toJson());
                 ap.sendKafka((int)ao.getId()%NUM_PARTS, ao.getId(), ao.getTs(), ao.toJson());
             }
             if (ao != null && ao.getTs() > 0) {

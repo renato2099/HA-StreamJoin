@@ -4,6 +4,7 @@ import ch.ethz.sjoin.consumer.AbstractConsumer;
 import ch.ethz.sjoin.consumer.AuctionConsumer;
 import ch.ethz.sjoin.consumer.BidConsumer;
 import ch.ethz.sjoin.model.Bid;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +18,7 @@ import java.util.concurrent.*;
 public class PJoin {
 
     private static final int THREAD_POOL = 2;
+    private static final long WAIT_TERM = 1000;
     private AbstractConsumer relACon;
     private AbstractConsumer relBCon;
     private ConcurrentHashMap<Long, Set<String>> joinState;
@@ -39,22 +41,31 @@ public class PJoin {
 
     public static void main(String [] args) {
         // get each consumer
+//        BidConsumer bidCon = new BidConsumer();
+//        while(true) {
+//            ConsumerRecords<Long, String> recs = bidCon.nextBatch();
+//            bidCon.printRecords(recs);
+//        }
+
         PJoin pjoin = new PJoin(new AuctionConsumer(), new BidConsumer());
         // do iterator model for consuming
         pjoin.startJoin();
-        // keep both hashes in-memory
+//        pjoin.terminateExecPool();
     }
 
     private void startJoin() {
-        // poll, probe,store from relA
-        Future<Map<Long, Set<String>>> matchesRelA = execs.submit(new SymHashJoinA(relA, relB, relACon, objsDone));
-        // poll, probe, store from relB
-        Future<Map<Long, Set<String>>> matchesRelB = execs.submit(new SymHashJoinB(relA, relB, relBCon, objsDone));
-        // clean unneeded tuples from join state
-        updateJoinState(matchesRelA);
-        updateJoinState(matchesRelB);
-        updateJoinState(objsDone);
-        logger.info(String.format("Join state size: %d", joinState.size()));
+        int numTries = 20;
+        while (numTries --> 0) {
+            // poll, probe,store from relA
+//            Future<Map<Long, Set<String>>> matchesRelA = execs.submit(new SymHashJoinA(relA, relB, relACon, objsDone));
+            // poll, probe, store from relB
+            Future<Map<Long, Set<String>>> matchesRelB = execs.submit(new SymHashJoinB(relA, relB, relBCon, objsDone));
+            // clean unneeded tuples from join state
+//            updateJoinState(matchesRelA);
+            updateJoinState(matchesRelB);
+//            updateJoinState(objsDone);
+            logger.info(String.format("RelA:%d\tRelB:%d\tJoinState:%d", relA.size(), relB.size(), joinState.size()));
+        }
     }
 
     private void updateJoinState(ConcurrentHashMap<Long, Long> objsDone) {
@@ -73,6 +84,15 @@ public class PJoin {
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void terminateExecPool() {
+        try {
+            logger.info("Terminating executors pool.");
+            execs.awaitTermination(WAIT_TERM, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }

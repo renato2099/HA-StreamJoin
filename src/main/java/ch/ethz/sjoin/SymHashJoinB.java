@@ -50,6 +50,7 @@ public class SymHashJoinB implements Callable<Map<Long, Set<String>>> {
                 bids = new HashSet<String>();
             }
             bids.add(r.value());
+            relB.put(b.getObjId(), bids);
         }
         return matchTups;
     }

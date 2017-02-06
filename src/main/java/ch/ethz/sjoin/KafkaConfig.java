@@ -27,6 +27,7 @@ public abstract class KafkaConfig {
     public static int missParts = 0;
     // scaling factor
     public static int sf = 1;
+    public static long tuplesSf = TUPLES_SF;
     // kafka topic
     public String kafkaTopic;
     // kafka consumer groupId
@@ -40,22 +41,25 @@ public abstract class KafkaConfig {
     public static void parseOptions(String[] args) {
         for (String opt : args) {
             String[] optParts = opt.split("=");
-            KafkaOpts prodOpts = KafkaOpts.valueOf(optParts[0].toLowerCase());
+            KafkaOpts prodOpts = KafkaOpts.valueOf(optParts[0].toUpperCase());
 
             if (prodOpts != null) {
                 String val = optParts[1];
                 switch (prodOpts) {
-                    case KAFKA_URL:
+                    case KAFKA:
                         kafkaUrl = val;
                         break;
                     case ZK:
                         zkUrl = val;
                         break;
-                    case MISSING_PARTITIONS:
+                    case MISSING:
                         missParts = Integer.parseInt(val);
                         break;
                     case SF:
                         sf = Integer.parseInt(val);
+                        break;
+                    case TUPLES:
+                        tuplesSf = Long.parseLong(val);
                         break;
                 }
             }
@@ -63,7 +67,7 @@ public abstract class KafkaConfig {
     }
 
     public enum KafkaOpts {
-        KAFKA_URL("kafka"), ZK("zk"), MISSING_PARTITIONS("missing"), SF("sf");;
+        KAFKA("kafka"), ZK("zk"), MISSING("missing"), SF("sf"), TUPLES("tuples");
         String value;
 
         KafkaOpts(String v) {
