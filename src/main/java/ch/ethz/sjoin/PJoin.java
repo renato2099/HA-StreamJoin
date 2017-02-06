@@ -3,6 +3,7 @@ package ch.ethz.sjoin;
 import ch.ethz.sjoin.consumer.AbstractConsumer;
 import ch.ethz.sjoin.consumer.AuctionConsumer;
 import ch.ethz.sjoin.consumer.BidConsumer;
+import ch.ethz.sjoin.model.Bid;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,9 +15,9 @@ public class PJoin {
 
     private AbstractConsumer relACon;
     private AbstractConsumer relBCon;
-    private ConcurrentHashMap<Long, Set<Long>> joinState;
+    private ConcurrentHashMap<Long, Set<Bid>> joinState;
     private ConcurrentHashMap<Long, Long> relA;
-    private ConcurrentHashMap<Long, Long> relB;
+    private ConcurrentHashMap<Long, Bid> relB;
     // thread for consuming data
     private TConsumer tCon;
     // thread for consuming and probing data
@@ -28,11 +29,11 @@ public class PJoin {
         relACon = auctionConsumer;
         relBCon = bidConsumer;
         tCon = new TConsumer(auctionConsumer, relA);
-        tProbe = new TProber(bidConsumer, relB);
+        tProbe = new TProber(bidConsumer, relA, relB, joinState);
         tCollector = new TCollector(joinState);
-        joinState = new ConcurrentHashMap<Long, Set<Long>>();
+        joinState = new ConcurrentHashMap<Long, Set<Bid>>();
         relA = new ConcurrentHashMap<Long, Long>();
-        relB = new ConcurrentHashMap<Long, Long>();
+        relB = new ConcurrentHashMap<Long, Bid>();
     }
 
     public static void main(String [] args) {
