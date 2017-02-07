@@ -3,8 +3,6 @@ package ch.ethz.sjoin;
 import ch.ethz.sjoin.consumer.AbstractConsumer;
 import ch.ethz.sjoin.consumer.AuctionConsumer;
 import ch.ethz.sjoin.consumer.BidConsumer;
-import ch.ethz.sjoin.model.Bid;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,13 +38,6 @@ public class PJoin {
     }
 
     public static void main(String[] args) {
-        // get each consumer
-//        BidConsumer bidCon = new BidConsumer();
-//        while(true) {
-//            ConsumerRecords<Long, String> recs = bidCon.nextBatch();
-//            bidCon.printRecords(recs);
-//        }
-
         PJoin pjoin = new PJoin(new AuctionConsumer(), new BidConsumer());
         // do iterator model for consuming
         try {

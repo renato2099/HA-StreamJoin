@@ -5,17 +5,21 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 
-import java.util.Arrays;
-import java.util.Properties;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by marenato on 03.02.17.
  */
 public class AbstractConsumer extends KafkaConfig {
+
+    public static int POLL_TIMEOUT = 5;
     // default tuple batch size
-    public static int BATCH_SIZE = 100;
+    public static int BATCH_SZ = 5;
+    public Queue<ConsumerRecord<Long, String>> buffer;
     // logger
     public Logger logger;
     // Kafka consumer
@@ -39,12 +43,30 @@ public class AbstractConsumer extends KafkaConfig {
         this.consumer = new KafkaConsumer<Long, String>(properties);
         //this.consumer.
         this.consumer.subscribe(Arrays.asList(this.kafkaTopic));
+        this.buffer = new ConcurrentLinkedQueue<ConsumerRecord<Long, String>>();
     }
 
     public ConsumerRecords<Long, String> nextBatch() {
-        ConsumerRecords<Long, String> recs = getConsumer().poll(BATCH_SIZE);
-        logger.debug(String.format("%d records read from %s", recs.count(), this.kafkaTopic));
-        return recs;
+
+
+        if (buffer.isEmpty() || buffer.size() < BATCH_SZ) {
+            ConsumerRecords<Long, String> recs = getConsumer().poll(POLL_TIMEOUT);
+            for (ConsumerRecord<Long, String> r: recs) {
+                buffer.add(r);
+            }
+        } else {
+
+            Map<TopicPartition, List<ConsumerRecord<Long, String>>> newBatch = new HashMap<TopicPartition, List<ConsumerRecord<Long, String>>>();
+//            int cnt = BATCH_SZ;
+//            while (cnt --> 0) {
+//                ConsumerRecord r = buffer.poll();
+//                newBatch.put(new TopicPartition(r.topic(), r.partition()),r.value());
+//            }
+        }
+
+
+//        logger.debug(String.format("%d records read from %s", recs.count(), this.kafkaTopic));
+        return null;
     }
 
     public KafkaConsumer<Long, String> getConsumer() {
