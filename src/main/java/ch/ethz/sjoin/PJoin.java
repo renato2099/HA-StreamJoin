@@ -39,7 +39,6 @@ public class PJoin {
 
     public static void main(String[] args) {
         PJoin pjoin = new PJoin(new AuctionConsumer(), new BidConsumer());
-        // do iterator model for consuming
         try {
             pjoin.startJoin();
         } catch (Exception e) {

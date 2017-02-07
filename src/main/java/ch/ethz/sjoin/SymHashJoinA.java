@@ -2,9 +2,6 @@ package ch.ethz.sjoin;
 
 import ch.ethz.sjoin.consumer.AbstractConsumer;
 import ch.ethz.sjoin.model.Auction;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,9 +33,9 @@ public class SymHashJoinA implements Callable<Map<Long, Set<String>>> {
     }
 
     public Map<Long, Set<String>> call() throws Exception {
-        ConsumerRecords<Long, String> records = relConsumer.nextBatch();
-        for (ConsumerRecord<Long, String> r : records) {
-            Long recId = r.key();
+        Map<Long, String> records = relConsumer.nextBatch();
+        for (Map.Entry<Long, String> r : records.entrySet()) {
+            Long recId = r.getKey();
             // check if it is a match
             if (relB.containsKey(recId)) {
                 Set<String> bTuples = relB.get(recId);
@@ -50,14 +47,15 @@ public class SymHashJoinA implements Callable<Map<Long, Set<String>>> {
                     matchTups.put(recId, bTuples);
                 } else {
                     // if I have seen it before, then check if it has to be deleted
-                    if (new Auction(r.value()).getInfo() == null) {
-                        objsDone.put(recId, r.timestamp());
+                    Auction tmpAuction = new Auction(r.getValue());
+                    if (tmpAuction.getInfo() == null) {
+                        objsDone.put(recId, tmpAuction.getTs());
                     }
                     // or it might be an update, which in this case we don't case
                 }
             }
             // add to relA
-            relA.put(recId, r.value());
+            relA.put(recId, r.getValue());
         }
         logger.debug(String.format("RelA contains %d records", relA.size()));
         return this.matchTups;

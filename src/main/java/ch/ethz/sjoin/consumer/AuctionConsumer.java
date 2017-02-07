@@ -1,13 +1,10 @@
 
 package ch.ethz.sjoin.consumer;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.common.PartitionInfo;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.print.DocFlavor;
+import java.util.Map;
 
 /**
  * Created by marenato on 03.02.17.
@@ -24,7 +21,7 @@ public class AuctionConsumer extends AbstractConsumer {
         this.logger = LoggerFactory.getLogger(AuctionConsumer.class);
     }
 
-    public static void main(String [] args) {
+    public static void main(String[] args) {
         parseOptions(args);
         AuctionConsumer ac = new AuctionConsumer();
         ac.logger.info(String.format("[%s] consuming from topic %s", ac.kafkaGroupId, ac.kafkaTopic));
@@ -33,7 +30,7 @@ public class AuctionConsumer extends AbstractConsumer {
         }
 
         while (true) {
-            ConsumerRecords<Long, String> records = ac.nextBatch();
+            Map<Long, String> records = ac.nextBatch();
             ac.printRecords(records);
         }
     }

@@ -2,8 +2,6 @@ package ch.ethz.sjoin;
 
 import ch.ethz.sjoin.consumer.AbstractConsumer;
 import ch.ethz.sjoin.model.Bid;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,16 +30,16 @@ public class SymHashJoinB implements Callable<Map<Long, Set<String>>> {
     }
 
     public Map<Long, Set<String>> call() throws Exception {
-        ConsumerRecords<Long, String> records = relConsumer.nextBatch();
-        for (ConsumerRecord<Long, String> r: records) {
-            Bid b = new Bid(r.value());
+        Map<Long, String> records = relConsumer.nextBatch();
+        for (Map.Entry<Long, String> r: records.entrySet()) {
+            Bid b = new Bid(r.getValue());
             // check if it's a match
             if (relA.containsKey(b.getObjId())) {
                 Set<String> matchingTups = relB.get(b.getObjId());
                 if (matchingTups == null) {
                     matchingTups = new HashSet<String>();
                 }
-                matchingTups.add(r.value());
+                matchingTups.add(r.getValue());
                 matchTups.put(b.getObjId(), matchingTups);
             }
             // add to relB
@@ -49,7 +47,7 @@ public class SymHashJoinB implements Callable<Map<Long, Set<String>>> {
             if (bids == null) {
                 bids = new HashSet<String>();
             }
-            bids.add(r.value());
+            bids.add(r.getValue());
             relB.put(b.getObjId(), bids);
         }
         return matchTups;

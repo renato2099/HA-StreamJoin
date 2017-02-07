@@ -5,7 +5,6 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 
 import java.util.*;
@@ -46,40 +45,37 @@ public class AbstractConsumer extends KafkaConfig {
         this.buffer = new ConcurrentLinkedQueue<ConsumerRecord<Long, String>>();
     }
 
-    public ConsumerRecords<Long, String> nextBatch() {
-
-
+    public Map<Long, String> nextBatch() {
         if (buffer.isEmpty() || buffer.size() < BATCH_SZ) {
             ConsumerRecords<Long, String> recs = getConsumer().poll(POLL_TIMEOUT);
-            for (ConsumerRecord<Long, String> r: recs) {
+            for (ConsumerRecord<Long, String> r : recs) {
                 buffer.add(r);
             }
-        } else {
-
-            Map<TopicPartition, List<ConsumerRecord<Long, String>>> newBatch = new HashMap<TopicPartition, List<ConsumerRecord<Long, String>>>();
-//            int cnt = BATCH_SZ;
-//            while (cnt --> 0) {
-//                ConsumerRecord r = buffer.poll();
-//                newBatch.put(new TopicPartition(r.topic(), r.partition()),r.value());
-//            }
         }
-
-
-//        logger.debug(String.format("%d records read from %s", recs.count(), this.kafkaTopic));
-        return null;
+        Map<Long, String> newBatch = new HashMap<Long, String>();
+        int cnt = BATCH_SZ;
+        while (cnt--> 0) {
+            if (buffer.size() <= 0)
+                return newBatch;
+            ConsumerRecord<Long, String> r = buffer.poll();
+            newBatch.put(r.key(), r.value());
+        }
+        logger.debug(String.format("%d records read from %s", newBatch.size(), this.kafkaTopic));
+        return newBatch;
     }
 
     public KafkaConsumer<Long, String> getConsumer() {
         return this.consumer;
     }
 
-    public void printRecords(ConsumerRecords<Long, String> records) {
-        if (records.count() > 0) {
-            System.out.println(String.format("Records received: %d", records.count()));
-            for (ConsumerRecord<Long, String> record : records)
+    public void printRecords(Map<Long, String> records) {
+        if (records.size() > 0) {
+            logger.info(String.format("Records received: %d", records.size()));
+            for (Map.Entry<Long, String> r : records.entrySet()) {
                 // print the offset,key and value for the consumer records.
-                System.out.printf("offset = %d, key = %d, value = %s\n",
-                        record.offset(), record.key(), record.value());
+                logger.info(String.format("key = %d, value = %s", r.getKey(), r.getValue()));
+                // System.out.printf("offset = %d, key = %d, value = %s\n", r.offset(), r.key(), r.value());
+            }
         }
     }
 }
