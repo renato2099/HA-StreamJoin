@@ -5,6 +5,8 @@ import ch.ethz.sjoin.model.Auction;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.zookeeper.KeeperException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +23,7 @@ public class SymHashJoinA implements Callable<Map<Long, Set<String>>> {
     private final ConcurrentHashMap<Long, Set<String>> relB;
     private final HashMap<Long, Set<String>> matchTups;
     private final ConcurrentHashMap<Long, Long> objsDone;
+    private final Logger logger;
 
     public SymHashJoinA(ConcurrentHashMap<Long, String> relA, ConcurrentHashMap<Long, Set<String>> relB,
                         AbstractConsumer rc, ConcurrentHashMap<Long, Long> objsDone) {
@@ -29,6 +32,7 @@ public class SymHashJoinA implements Callable<Map<Long, Set<String>>> {
         this.relConsumer = rc;
         this.matchTups = new HashMap<Long, Set<String>>();
         this.objsDone = objsDone;
+        this.logger = LoggerFactory.getLogger(SymHashJoinA.class);
     }
 
     public Map<Long, Set<String>> call() throws Exception {
@@ -36,7 +40,7 @@ public class SymHashJoinA implements Callable<Map<Long, Set<String>>> {
         for (ConsumerRecord<Long, String> r : records) {
             Long recId = r.key();
             // check if it is a match
-            if (relB.contains(recId)) {
+            if (relB.containsKey(recId)) {
                 Set<String> bTuples = relB.get(recId);
                 if (!matchTups.containsKey(recId)) {
                     // sanity check
@@ -55,6 +59,7 @@ public class SymHashJoinA implements Callable<Map<Long, Set<String>>> {
             // add to relA
             relA.put(recId, r.value());
         }
+        logger.debug(String.format("RelA contains %d records", relA.size()));
         return this.matchTups;
     }
 }

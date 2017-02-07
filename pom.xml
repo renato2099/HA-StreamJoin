@@ -60,7 +60,7 @@
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
-                            <finalName>bid-producer-${project.version}</finalName>
+                            <finalName>bid-producer</finalName>
                         </configuration>
                         <phase>package</phase>
                         <goals>
@@ -80,7 +80,7 @@
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
-                            <finalName>auction-producer-${project.version}</finalName>
+                            <finalName>auction-producer</finalName>
                         </configuration>
                         <phase>package</phase>
                         <goals>
@@ -100,7 +100,7 @@
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
-                            <finalName>pjoin-${project.version}</finalName>
+                            <finalName>pjoin</finalName>
                         </configuration>
                         <phase>package</phase>
                         <goals>

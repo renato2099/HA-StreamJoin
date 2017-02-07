@@ -57,11 +57,11 @@ public class Auction {
         return jsonObj.toJSONString();
     }
 
-    public long getTs() {
+    public Long getTs() {
         return ts;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

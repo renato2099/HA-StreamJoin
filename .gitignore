@@ -2,3 +2,4 @@
 HA-StreamJoin.iml
 target
 sj.iml
+*.pyc

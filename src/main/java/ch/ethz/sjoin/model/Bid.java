@@ -50,7 +50,7 @@ public class Bid {
         return jsonObject.toJSONString();
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -58,7 +58,7 @@ public class Bid {
         return String.valueOf(id);
     }
 
-    public long getObjId() {
+    public Long getObjId() {
         return objId;
     }
 

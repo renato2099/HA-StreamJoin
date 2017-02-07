@@ -36,7 +36,7 @@ public class SymHashJoinB implements Callable<Map<Long, Set<String>>> {
         for (ConsumerRecord<Long, String> r: records) {
             Bid b = new Bid(r.value());
             // check if it's a match
-            if (relA.contains(b.getObjId())) {
+            if (relA.containsKey(b.getObjId())) {
                 Set<String> matchingTups = relB.get(b.getObjId());
                 if (matchingTups == null) {
                     matchingTups = new HashSet<String>();
