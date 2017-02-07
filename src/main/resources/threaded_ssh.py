@@ -23,7 +23,6 @@ class OutputClient(Thread):
         self.observers = outObs
 
     def run(self):
-        print "xxxxx"
         for line in self.out:
             print "{0}Host {1}: {2}{3}".format(self.prefix, self.host, line, self.suffix)
             sys.stdout.flush()
@@ -82,7 +81,7 @@ class ChildClient(Thread):
             frame = last_frame().tb_frame
             ns = dict(frame.f_globals)
             ns.update(frame.f_locals)
-            #code.interact(local=ns)
+            code.interact(local=ns)
 
 class ThreadedClients(Thread):
     def __init__(self, servers, cmd, rnd_start=False, root=True, observers=[]):

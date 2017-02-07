@@ -1,5 +1,5 @@
 class Config:
-    exec_path   = '/home/marenato/Documents/Apache/Kafka/kafka_2.11-0.10.1.0'
+    exec_path   = '/mnt/SG/marenato/kafka_2.11-0.10.1.0'
     #exec_path   = ''
     num_parts   = 16
     sf          = 1

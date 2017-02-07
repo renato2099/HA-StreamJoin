@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys
+import sys, traceback
 import signal
 import os
 import time
@@ -11,14 +11,14 @@ from exp_config import *
 from functools import partial
 
 import logging
-import gevent.monkey; gevent.monkey.patch_thread()
+#import gevent.monkey; gevent.monkey.patch_thread()
 
-# if 'threading' in sys.modules:
-#         del sys.modules['threading']
-#         import gevent
-#         import gevent.socket
-#         import gevent.monkey
-#         gevent.monkey.patch_all()
+if 'threading' in sys.modules:
+        del sys.modules['threading']
+        import gevent
+        import gevent.socket
+        import gevent.monkey
+        gevent.monkey.patch_all()
 
 logging.basicConfig()
 
@@ -43,17 +43,26 @@ def startKafka():
     return [zkClient]
 
 def exitGracefully(storageClients, signal, frame):
-    print ""
-    print "\033[1;31mShutting down Storage\033[0m"
-    for client in storageClients:
-        client.kill()
-    #unmount_memfs()
-    os.exit(0)
+    try:
+        print ""
+        print "\033[1;31mShutting down Storage\033[0m"
+        for client in storageClients:
+            client.kill()
+        #unmount_memfs()
+        exit(0)
+    except KeyboardInterrupt:
+        print "\033[1;31mExiting"
+    except Exception:
+        traceback.print_exc(file=sys.stdout)
+    except SystemExit as e:
+        print "\033[1;31mExiting\033[0m"
+        #exit(e)
+    #exit(0)
 
 if __name__ == "__main__":
     expClients = startKafka()
-    # signal.signal(signal.SIGINT, partial(exitGracefully, expClients))
-    # print "\033[1;31mExp started\033[0m"
-    # print "\033[1;31mHit Ctrl-C to shut it down\033[0m"
+    signal.signal(signal.SIGINT, partial(exitGracefully, expClients))
+    print "\033[1;31mExp started\033[0m"
+    print "\033[1;31mHit Ctrl-C to shut it down\033[0m"
     for client in expClients:
         client.join()
