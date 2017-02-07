@@ -15,7 +15,6 @@ public class AuctionProducer extends AbstractProducer {
     private static final int NUM_PARTS = 16;
     // TODO do failures
     private static final double BEGIN_FAIL = 0.1;
-    private static final double BEGIN_COMPLETION = 1.0;//0.5;
     private static Logger logger = LoggerFactory.getLogger(AuctionProducer.class);
     private static Random random = new Random();
     private HashSet<Long> auctionsProduced;
@@ -32,7 +31,8 @@ public class AuctionProducer extends AbstractProducer {
     public static void main(String[] args) {
         parseOptions(args);
         random.setSeed(1000L);
-        logger.info(String.format("Producing %dK auction objects - Missing %d partitions.", sf, missParts));
+        logger.info(String.format("Auction objects %d  - Missing %d partitions.", sf*tuplesSf, missParts));
+        logger.info(String.format("CompleteAfter %f %% - FailAfter %f %%", pCompletion, BEGIN_FAIL));
         logger.info(String.format("Kafka:%s \t Zk:%s", kafkaUrl, zkUrl));
         AuctionProducer ap = new AuctionProducer(AUCTION_TOPIC);
 
@@ -56,7 +56,7 @@ public class AuctionProducer extends AbstractProducer {
         Auction newAuction;
         boolean complete = false;
         long currTs = System.currentTimeMillis();
-        if (currTuples >= totTuples * BEGIN_COMPLETION) {
+        if (currTuples >= totTuples * pCompletion) {
             // decide to complete or not
             complete = random.nextBoolean() && this.auctionsProduced.iterator().hasNext();
         }

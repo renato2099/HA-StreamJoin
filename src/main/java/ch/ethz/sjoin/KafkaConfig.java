@@ -14,6 +14,8 @@ public abstract class KafkaConfig {
     public static final String DEF_KAFKA_URL = "localhost:9092";
     public static final String DEF_ZK_URL = "localhost:2181";
     public static final long TUPLES_SF = 100;
+    public static final int BID_RATIO = 10;
+    public static final double PCOMPLETION = 0.5;
     // Kafka serializer/deserializer classes
     public static final String KEY_SERIALIZER = LongSerializer.class.getCanonicalName();
     public static final String KEY_DESERIALIZER = LongDeserializer.class.getCanonicalName();
@@ -28,6 +30,8 @@ public abstract class KafkaConfig {
     // scaling factor
     public static int sf = 1;
     public static long tuplesSf = TUPLES_SF;
+    public static int bidRatio = BID_RATIO;
+    public static double pCompletion = PCOMPLETION;
     // kafka topic
     public String kafkaTopic;
     // kafka consumer groupId
@@ -61,13 +65,20 @@ public abstract class KafkaConfig {
                     case TUPLES:
                         tuplesSf = Long.parseLong(val);
                         break;
+                    case BID_RATIO:
+                        bidRatio = Integer.parseInt(val);
+                        break;
+                    case PCOMPLETION:
+                        pCompletion = Double.parseDouble(val);
+                        break;
                 }
             }
         }
     }
 
     public enum KafkaOpts {
-        KAFKA("kafka"), ZK("zk"), MISSING("missing"), SF("sf"), TUPLES("tuples");
+        KAFKA("kafka"), ZK("zk"), MISSING("missing"), SF("sf"), TUPLES("tuples"),
+        BID_RATIO("bid_ratio"), PCOMPLETION("pcompletion");
         String value;
 
         KafkaOpts(String v) {

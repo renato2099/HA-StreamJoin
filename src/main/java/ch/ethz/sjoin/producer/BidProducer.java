@@ -12,10 +12,10 @@ import java.util.Random;
  */
 public class BidProducer extends AbstractProducer {
 
-    private static final int BID_SF = 2;
+
     private static final int NUM_PARTS = 16;
     //    private static final double BEGIN_FAIL = 0.1;
-//    private static final double BEGIN_COMPLETION = 0.5;
+//    private static final double PCOMPLETION = 0.5;
     private static Logger logger = LoggerFactory.getLogger(BidProducer.class);
     private static Random random = new Random();
 
@@ -36,7 +36,7 @@ public class BidProducer extends AbstractProducer {
 
         // generate bids uniformly distributed along the auctioned objects
         long nAuctionObjs = sf * tuplesSf;
-        long totBids = nAuctionObjs * BID_SF;
+        long totBids = nAuctionObjs * bidRatio;
         long currBids = 0;
         // select uniformly at random an object
         while (currBids < totBids) {
