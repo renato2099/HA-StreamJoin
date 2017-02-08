@@ -16,6 +16,8 @@ public abstract class KafkaConfig {
     public static final long TUPLES_SF = 100;
     public static final int BID_RATIO = 10;
     public static final double PCOMPLETION = 0.5;
+    // Porcentage of tuples produced until failures start happening
+    public static final double SUCCESS_TUPS = 1.0;
     // Kafka serializer/deserializer classes
     public static final String KEY_SERIALIZER = LongSerializer.class.getCanonicalName();
     public static final String KEY_DESERIALIZER = LongDeserializer.class.getCanonicalName();
@@ -25,13 +27,14 @@ public abstract class KafkaConfig {
     public static String kafkaUrl = DEF_KAFKA_URL;
     // Zk url
     public static String zkUrl = DEF_ZK_URL;
-    // missing partitions
+    // Number of partitions failing
     public static int missParts = 0;
     // scaling factor
     public static int sf = 1;
     public static long tuplesSf = TUPLES_SF;
     public static int bidRatio = BID_RATIO;
     public static double pCompletion = PCOMPLETION;
+    public static double pSuccess = SUCCESS_TUPS;
     // kafka topic
     public String kafkaTopic;
     // kafka consumer groupId
@@ -71,6 +74,9 @@ public abstract class KafkaConfig {
                     case PCOMPLETION:
                         pCompletion = Double.parseDouble(val);
                         break;
+                    case PSUCCESS:
+                        pSuccess = Double.parseDouble(val);
+                        break;
                 }
             }
         }
@@ -78,7 +84,7 @@ public abstract class KafkaConfig {
 
     public enum KafkaOpts {
         KAFKA("kafka"), ZK("zk"), MISSING("missing"), SF("sf"), TUPLES("tuples"),
-        BID_RATIO("bid_ratio"), PCOMPLETION("pcompletion");
+        BID_RATIO("bid_ratio"), PCOMPLETION("pcompletion"), PSUCCESS("psuccess");
         String value;
 
         KafkaOpts(String v) {
