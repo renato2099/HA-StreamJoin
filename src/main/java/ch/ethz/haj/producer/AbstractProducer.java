@@ -1,10 +1,9 @@
-package ch.ethz.sjoin.producer;
+package ch.ethz.haj.producer;
 
-import ch.ethz.sjoin.KafkaConfig;
+import ch.ethz.haj.KafkaConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.Properties;
 

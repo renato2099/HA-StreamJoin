@@ -54,7 +54,7 @@
                             <appendAssemblyId>false</appendAssemblyId>
                             <archive>
                                 <manifest>
-                                    <mainClass>ch.ethz.sjoin.producer.BidProducer</mainClass>
+                                    <mainClass>ch.ethz.haj.producer.BidProducer</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
@@ -74,7 +74,7 @@
                             <appendAssemblyId>false</appendAssemblyId>
                             <archive>
                                 <manifest>
-                                    <mainClass>ch.ethz.sjoin.producer.AuctionProducer</mainClass>
+                                    <mainClass>ch.ethz.haj.producer.AuctionProducer</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
@@ -89,18 +89,37 @@
                     </execution>
                     <!-- Join consumer -->
                     <execution>
-                        <id>join-consumer</id>
+                        <id>pjoin-consumer</id>
                         <configuration>
                             <appendAssemblyId>false</appendAssemblyId>
                             <archive>
                                 <manifest>
-                                    <mainClass>ch.ethz.sjoin.PJoin</mainClass>
+                                    <mainClass>ch.ethz.haj.join.sym.PJoin</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
                             <finalName>pjoin</finalName>
+                        </configuration>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>hajoin-consumer</id>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <archive>
+                                <manifest>
+                                    <mainClass>ch.ethz.haj.join.ha.HAJoin</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <finalName>hajoin</finalName>
                         </configuration>
                         <phase>package</phase>
                         <goals>

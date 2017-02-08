@@ -1,6 +1,6 @@
-package ch.ethz.sjoin.producer;
+package ch.ethz.haj.producer;
 
-import ch.ethz.sjoin.model.Auction;
+import ch.ethz.haj.model.Auction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +43,7 @@ public class AuctionProducer extends AbstractProducer {
             Auction ao = ap.produceAuction(currTuples, totTuples);
             if (ao != null) {
                 logger.debug(ao.toJson());
+                // using key partitioning to ensure that all tuple updates are stored after their creation
                 ap.sendKafka(ao.getId().intValue()%NUM_PARTS, ao.getId(), ao.getTs(), ao.toJson());
             }
             if (ao != null && ao.getTs() > 0) {

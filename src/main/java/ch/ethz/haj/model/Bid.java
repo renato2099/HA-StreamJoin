@@ -1,4 +1,4 @@
-package ch.ethz.sjoin.model;
+package ch.ethz.haj.model;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;

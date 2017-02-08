@@ -1,4 +1,4 @@
-package ch.ethz.sjoin.model;
+package ch.ethz.haj.model;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -31,7 +31,7 @@ public class Auction {
         try {
             jObj = (JSONObject) new JSONParser().parse(jsonStr);
             tmpId = Long.valueOf(jObj.get("id").toString());
-            tmpInfo = jObj.get("info").toString();
+            tmpInfo = jObj.get("info") != null ? jObj.get("info").toString() : null;
             tmpTs = Long.valueOf(jObj.get("ts").toString());
         } catch (ParseException e) {
             e.printStackTrace();
@@ -39,14 +39,6 @@ public class Auction {
         this.id = tmpId;
         this.info = tmpInfo;
         this.ts = tmpTs;
-    }
-
-    public void setInfo(String i) {
-        this.info = i;
-    }
-
-    public void setTs(long t) {
-        this.ts = t;
     }
 
     public String toJson() {
@@ -61,12 +53,20 @@ public class Auction {
         return ts;
     }
 
+    public void setTs(long t) {
+        this.ts = t;
+    }
+
     public Long getId() {
         return id;
     }
 
     public String getInfo() {
         return info;
+    }
+
+    public void setInfo(String i) {
+        this.info = i;
     }
 
     public String getStrId() {

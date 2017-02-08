@@ -1,9 +1,10 @@
-package ch.ethz.sjoin.consumer;
+package ch.ethz.haj.consumer;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.PartitionInfo;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import java.util.Vector;
 
 /**
  * Created by marenato on 03.02.17.
@@ -34,7 +35,7 @@ public class BidConsumer extends AbstractConsumer {
         }
 
         while (true) {
-            Map<Long, String> records = bc.nextBatch();
+            Vector<ConsumerRecord<Long, String>> records = bc.nextBatch();
             bc.printRecords(records);
         }
 

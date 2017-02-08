@@ -1,4 +1,4 @@
-package ch.ethz.sjoin;
+package ch.ethz.haj;
 
 import org.apache.kafka.common.serialization.*;
 
