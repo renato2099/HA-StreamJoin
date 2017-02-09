@@ -21,6 +21,7 @@ public class AuctionProducer extends AbstractProducer {
 
     /**
      * AuctionProducer constructor
+     *
      * @param kafkaTopicName
      */
     public AuctionProducer(String kafkaTopicName) {
@@ -31,42 +32,40 @@ public class AuctionProducer extends AbstractProducer {
     public static void main(String[] args) {
         parseOptions(args);
         random.setSeed(1000L);
-        logger.info(String.format("Auction objects %d  - Missing %d partitions.", sf*tuplesSf, missParts));
+        logger.info(String.format("Auction objects %d  - Missing %d partitions.", sf * tuplesSf, missParts));
         logger.info(String.format("CompleteAfter %f %% - FailAfter %f %%", pCompletion, BEGIN_FAIL));
         logger.info(String.format("Kafka:%s \t Zk:%s", kafkaUrl, zkUrl));
         AuctionProducer ap = new AuctionProducer(AUCTION_TOPIC);
 
         // generate random numbers and insert them
         long totTuples = sf * tuplesSf;
-        long currTuples = 0;
-        while (currTuples < totTuples) {
-            Auction ao = ap.produceAuction(currTuples, totTuples);
+        long tupsToCompl = (long) (totTuples * pCompletion);
+        long currTuple = 0;
+        while (currTuple < totTuples || tupsToCompl > 0) {
+            Auction ao = ap.produceAuction(currTuple, tupsToCompl, totTuples);
             if (ao != null) {
                 logger.debug(ao.toJson());
                 // using key partitioning to ensure that all tuple updates are stored after their creation
                 ap.sendKafka(ao.getId().intValue()%NUM_PARTS, ao.getId(), ao.getTs(), ao.toJson());
-            }
-            if (ao != null && ao.getTs() > 0) {
-                currTuples++;
+                if (ao.getInfo() == null) {
+                    tupsToCompl--;
+                } else {
+                    currTuple++;
+                }
             }
         }
         ap.closeProducer();
     }
 
-    private Auction produceAuction(long currTuples, long totTuples) {
-        Auction newAuction;
-        boolean complete = false;
+    private Auction produceAuction(long currTuples, long tupsToCompl, long totTuples) {
+        Auction newAuction = null;
         long currTs = System.currentTimeMillis();
-        if (currTuples >= totTuples * pCompletion) {
-            // decide to complete or not
-            complete = random.nextBoolean() && this.auctionsProduced.iterator().hasNext();
-        }
-        if (complete) {
+        if (tupsToCompl > 0 && !this.auctionsProduced.isEmpty() && random.nextBoolean()) {
             long idToComplete = this.auctionsProduced.iterator().next();
             newAuction = new Auction(idToComplete);
             newAuction.setTs(currTs);
             this.auctionsProduced.remove(idToComplete);
-        }  else {
+        } else if (currTuples < totTuples) {
             newAuction = new Auction(currTuples);
             this.auctionsProduced.add(currTuples);
             newAuction.setInfo(String.format("AuctionObject-%d", currTuples));
