@@ -37,25 +37,30 @@ public class BidProducer extends AbstractProducer {
         // generate bids uniformly distributed along the auctioned objects
         long nAuctionObjs = sf * tuplesSf;
         long totBids = nAuctionObjs * bidRatio;
-        long currBids = 0;
+        long currBids = 0, tProduced = 0, tFailed = 0;
+        boolean fail;
         // select uniformly at random an object
         while (currBids < totBids) {
             long aucObjId = random.nextInt(Integer.MAX_VALUE) % nAuctionObjs;
             Bid bid = new Bid(currBids, aucObjId, random.nextDouble(), System.currentTimeMillis());
             // No punctuacted bid tuples are needed as we can just ignore them if there is no matching auctionObject.
-            logger.debug(bid.toJson());
             Integer bidPart = (int) currBids % NUM_PARTS;
-            boolean fail = false;
-            if (totBids * pSuccess < currBids) {
+            fail = false;
+            if (totBids * pSuccess <= currBids) {
                 //if (!partIds.contains(bidPart))
-                if (bidPart < missParts)
+                if (bidPart < missParts) {
                     fail = true;
+                    tFailed ++;
+                }
             }
             if (!fail) {
+                logger.debug(bid.toJson());
                 bp.sendKafka(bidPart, bid.getId(), bid.getTs(), bid.toJson());
+                tProduced ++;
             }
             currBids++;
         }
+        logger.info(String.format("Tuples sent: %d\t Tuples failed: %d", tProduced, tFailed));
         bp.closeProducer();
     }
 

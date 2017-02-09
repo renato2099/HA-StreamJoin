@@ -62,7 +62,7 @@ public class PJoin {
     }
 
     private void startJoin() throws Exception {
-        int numTries = 20;
+        int numTries = 1000;
         SymHashJoinA joinA = new SymHashJoinA(relA, relB, relACon, objsDone);
         SymHashJoinB joinB = new SymHashJoinB(relA, relB, relBCon, objsDone);
         while (numTries-- > 0) {

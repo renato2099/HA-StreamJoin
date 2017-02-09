@@ -78,8 +78,7 @@ public class AbstractConsumer extends KafkaConfig {
             logger.info(String.format("Records received: %d", records.size()));
             for (ConsumerRecord<Long, String> r : records) {
                 // print the offset,key and value for the consumer records.
-                logger.info(String.format("key = %d, value = %s", r.key(), r.value()));
-                // System.out.printf("offset = %d, key = %d, value = %s\n", r.offset(), r.key(), r.value());
+                logger.info(String.format("partition = %d, offset = %d, key = %d, value = %s", r.partition(), r.offset(), r.key(), r.value()));
             }
         }
     }
