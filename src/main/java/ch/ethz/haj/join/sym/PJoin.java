@@ -47,7 +47,7 @@ public class PJoin {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        dumpJoinState(pjoin.joinState);
+        //dumpJoinState(pjoin.joinState);
         // pjoin.terminateExecPool();
     }
 
@@ -62,10 +62,16 @@ public class PJoin {
     }
 
     private void startJoin() throws Exception {
-        int numTries = 1000;
+        int maxTries = 1000;
+        int nTries = 0;
         SymHashJoinA joinA = new SymHashJoinA(relA, relB, relACon, objsDone);
         SymHashJoinB joinB = new SymHashJoinB(relA, relB, relBCon, objsDone);
-        while (numTries-- > 0) {
+        //while (numTries-- > 0) {
+        int prevA = relA.size();
+        int prevB = relB.size();
+        int prevJs =joinState.size();
+
+        while (nTries < maxTries) {
             // poll, probe,store from relA
             Map<Long, Set<String>> matchesRelA = joinA.call();
             updateJoinState(matchesRelA);
@@ -74,6 +80,16 @@ public class PJoin {
             updateJoinState(matchesRelB);
             // clean unneeded tuples from join state
             updateJoinState(objsDone);
+            if (prevA == relA.size() && prevB == relB.size() && prevJs == joinState.size()) {
+                nTries ++;
+                if (nTries % 100 == 0)
+                    logger.debug(String.format("RETRYING for the %dth time", nTries));
+            }
+            else
+                logger.debug(String.format("RelA:%d\tRelB:%d\tJoinState:%d", relA.size(), relB.size(), joinState.size()));
+            prevA = relA.size();
+            prevB = relB.size();
+            prevJs =joinState.size();
         }
         logger.info(String.format("RelA:%d\tRelB:%d\tJoinState:%d", relA.size(), relB.size(), joinState.size()));
     }

@@ -26,6 +26,10 @@ public class BidProducer extends AbstractProducer {
         super(kafkaTopicName);
     }
 
+    /**
+     * If there no missing partitions, then all will tuple insertions will succeed.
+     * @param args
+     */
     public static void main(String args[]) {
         parseOptions(args);
         random.setSeed(1000L);

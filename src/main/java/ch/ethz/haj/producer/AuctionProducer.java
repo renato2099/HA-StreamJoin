@@ -33,7 +33,7 @@ public class AuctionProducer extends AbstractProducer {
         parseOptions(args);
         random.setSeed(1000L);
         logger.info(String.format("Auction objects %d  - Missing %d partitions.", sf * tuplesSf, missParts));
-        logger.info(String.format("CompleteAfter %f %% - FailAfter %f %%", pCompletion, BEGIN_FAIL));
+        logger.info(String.format("CompleteAfter %f %% - FailAfter %f %%", pCompletion, pSuccess));
         logger.info(String.format("Kafka:%s \t Zk:%s", kafkaUrl, zkUrl));
         AuctionProducer ap = new AuctionProducer(AUCTION_TOPIC);
 
@@ -41,12 +41,26 @@ public class AuctionProducer extends AbstractProducer {
         long totTuples = sf * tuplesSf;
         long tupsToCompl = (long) (totTuples * pCompletion);
         long currTuple = 0;
+        long lostTuples = 0;
+
         while (currTuple < totTuples || tupsToCompl > 0) {
+            boolean toMiss = false;
             Auction ao = ap.produceAuction(currTuple, tupsToCompl, totTuples);
             if (ao != null) {
-                logger.debug(ao.toJson());
                 // using key partitioning to ensure that all tuple updates are stored after their creation
-                ap.sendKafka(ao.getId().intValue()%NUM_PARTS, ao.getId(), ao.getTs(), ao.toJson());
+                int tupPart = ao.getId().intValue()%NUM_PARTS;
+                if (currTuple > totTuples * pSuccess ) {
+                    if (tupPart < missParts) {
+                        toMiss = true;
+                    }
+                }
+                if (!toMiss){
+                    logger.debug(ao.toJson());
+                    ap.sendKafka(tupPart, ao.getId(), ao.getTs(), ao.toJson());
+                } else {
+                    lostTuples ++;
+                }
+
                 if (ao.getInfo() == null) {
                     tupsToCompl--;
                 } else {
@@ -55,6 +69,7 @@ public class AuctionProducer extends AbstractProducer {
             }
         }
         ap.closeProducer();
+        logger.info(String.format("Produced tuples:%d\tCompleted tuples:%1.2f\tLost tuples:%d", currTuple, (totTuples * pCompletion), lostTuples));
     }
 
     private Auction produceAuction(long currTuples, long tupsToCompl, long totTuples) {
