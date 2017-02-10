@@ -11,7 +11,6 @@ from exp_config import *
 from functools import partial
 
 import logging
-#import gevent.monkey; gevent.monkey.patch_thread()
 
 if 'threading' in sys.modules:
         del sys.modules['threading']
@@ -60,6 +59,16 @@ def startSetup():
     createTopic('bid-topic', Config.partitions, Config.exec_path, Config.server)
     createTopic('auction-topic', Config.partitions, Config.exec_path, Config.server)    
     return [kafkaClient] + [zkClient]
+
+def stopSetup():
+    # stop kafka
+    stopZkClient = ThreadedClients([Config.server], "{0}/bin/zookeeper-server-stop.sh".format(Config.exec_path))
+    stopZkClient.start()
+    stopZkClient.join()
+    # stop zk
+    stopKafkaClient = ThreadedClients([Config.server], "{0}/bin/kafka-server-stop.sh".format(Config.exec_path))
+    stopKafkaClient.start()
+    stopKafkaClient.join()
 
 def createTopic(tName, nParts, ePath, server):
     # TODO Change zk default port?
