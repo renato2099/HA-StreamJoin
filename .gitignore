@@ -4,3 +4,4 @@ target
 sj.iml
 **/*.pyc
 **/*.log
+**/.DS_STORE

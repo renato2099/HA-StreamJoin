@@ -2,7 +2,9 @@
 
 NPARTS=16
 MPARTS=0
-TUPLES=160
+TUPLES=1000
+PCOMPL=0.1
+PSUCC=0.5
 
 KAFKA_HOME=/home/marenato/Documents/Apache/Kafka/kafka_2.11-0.10.1.0
 JARS=/home/marenato/Documents/workspace/workspacePhd/renatos-and-lukis-information-retrieval-project/HA-StreamJoin
@@ -36,14 +38,16 @@ sh $KAFKA_HOME/bin/kafka-topics.sh --create --partitions $NPARTS --zookeeper loc
 sh $KAFKA_HOME/bin/kafka-topics.sh --create --partitions $NPARTS --zookeeper localhost:2181 --replication-factor 1 --topic auction-topic
 
 echo "Populating <auction-topic>"
-echo "kafka=localhost:9092 zk=localhost:2181 missing=${MPARTS} sf=1 tuples=${TUPLES} pcompletion=0.9 psuccess=0.1" > auctionProducer.log
-java -jar $JARS/target/auction-producer.jar kafka=localhost:9092 zk=localhost:2181 missing=$MPARTS sf=1 tuples=$TUPLES pcompletion=0.9 psuccess=0.1 >> auctionProducer.log
+echo "kafka=localhost:9092 zk=localhost:2181 missing=${MPARTS} sf=1 tuples=${TUPLES} pcompletion=${PCOMPL} psuccess=${PSUCC}" > auctionProducer.log
+java -jar $JARS/target/auction-producer.jar kafka=localhost:9092 zk=localhost:2181 missing=$MPARTS sf=1 tuples=$TUPLES pcompletion=$PCOMPL psuccess=$PSUCC >> auctionProducer.log
 
 echo "Populating <bid-topic>"
-echo "kafka=localhost:9092 zk=localhost:2181 missing=${MPARTS} sf=1 tuples=${TUPLES} bid_ratio=10 psuccess=0.1" > bidProducer.log
-java -jar $JARS/target/bid-producer.jar kafka=localhost:9092 zk=localhost:2181 missing=0 sf=1 tuples=$TUPLES bid_ratio=10 psuccess=0.1 >> bidProducer.log
+echo "kafka=localhost:9092 zk=localhost:2181 missing=${MPARTS} sf=1 tuples=${TUPLES} bid_ratio=10 psuccess=${PSUCC}" > bidProducer.log
+java -jar $JARS/target/bid-producer.jar kafka=localhost:9092 zk=localhost:2181 missing=$MPARTS sf=1 tuples=$TUPLES bid_ratio=10 psuccess=$PSUCC >> bidProducer.log
 
 echo "Joining with ${MPARTS} lost"
-java -jar $JARS/target/pjoin.jar > join.${MPARTS}.log
+java -jar $JARS/target/pjoin.jar kafka=localhost:9092 zk=localhost:2181 missing=$MPARTS > join.${MPARTS}.log
+cat join.${MPARTS}.log | grep "JoinState:k"
 
-tail -n 2 join.${MPARTS}.log
+#java -jar $JARS/target/hajoin.jar kafka=localhost:9092 zk=localhost:2181 missing=$MPARTS > hajoin.${MPARTS}.log
+#cat hajoin.${MPARTS}.log | grep "JoinState:k"
