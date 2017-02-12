@@ -18,6 +18,7 @@ public abstract class KafkaConfig {
     public static final double PCOMPLETION = 0.5;
     // Porcentage of tuples produced until failures start happening
     public static final double SUCCESS_TUPS = 1.0;
+    public static final int NUM_PARTS = 16;
     // Kafka serializer/deserializer classes
     public static final String KEY_SERIALIZER = LongSerializer.class.getCanonicalName();
     public static final String KEY_DESERIALIZER = LongDeserializer.class.getCanonicalName();
