@@ -69,6 +69,12 @@ public class Join extends KafkaConfig {
         }
     }
 
+    public void dumpRelation(ConcurrentHashMap<Long, String> relA) {
+        for (Map.Entry<Long, String> entry : relA.entrySet()) {
+            System.out.println(String.format("%d -> %s", entry.getKey(), entry.getValue()));
+        }
+    }
+
     public void terminateExecPool() {
         try {
             logger.info("Terminating executors pool.");

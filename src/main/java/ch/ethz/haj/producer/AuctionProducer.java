@@ -76,7 +76,7 @@ public class AuctionProducer extends AbstractProducer {
             }
 
             // flip coin and start completing
-            if (!ap.auctionsProduced.isEmpty() && random.nextBoolean()) {
+            if (!ap.auctionsProduced.isEmpty() && random.nextBoolean() && tupToCmpl > cmplTups) {
                 long idToComplete = ap.auctionsProduced.iterator().next();
                 Auction compAuc = new Auction(idToComplete);
                 compAuc.setTs(System.currentTimeMillis());
@@ -88,7 +88,7 @@ public class AuctionProducer extends AbstractProducer {
                 cmplTups++;
             }
         }
-        logger.info(String.format("TotTuples:%d\tNew:%d\tUpd:%d\tCompl:%d", cntTups, nextId, upds, tupToCmpl));
+        logger.info(String.format("TotTuples:%d\tNew:%d\tUpd:%d\tCompl:%d", cntTups, nextId, upds, cmplTups));
         logger.info(String.format("TupsSent:%d\tTupsMissed:%d", sent, missed));
         ap.closeProducer();
     }

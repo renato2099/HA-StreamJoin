@@ -47,7 +47,7 @@ public class SymHashJoinA implements Callable<Map<Long, Set<String>>> {
 
                 // check if done
                 Auction tmpAuction = new Auction(r.value());
-                if (tmpAuction.getInfo() == null) {
+                if (tmpAuction.isDone()) {
                     objsDone.put(recId, tmpAuction.getTs());
                 } else {
                     // check if it is a match

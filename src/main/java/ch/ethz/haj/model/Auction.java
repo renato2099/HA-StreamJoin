@@ -72,4 +72,8 @@ public class Auction {
     public String getStrId() {
         return String.valueOf(id);
     }
+
+    public boolean isDone() {
+        return this.info == null;
+    }
 }
