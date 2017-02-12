@@ -29,6 +29,22 @@ public class AuctionProducer extends AbstractProducer {
         auctionsProduced = new HashSet<Long>();
     }
 
+    public long getRandomProducedId() {
+        int sz = auctionsProduced.size();
+        if (sz > 0) {
+            int randEle = random.nextInt(sz);
+            int i = 0;
+            for (Long ele : auctionsProduced) {
+                if (i == randEle)
+                    return ele;
+                i++;
+            }
+        }
+        return -1L;
+    }
+
+    public static final double UPD_PERCENTAGE = 0.3;
+    public static final double INS_PERCENTAGE = 1.0 - UPD_PERCENTAGE;
     public static void main(String[] args) {
         parseOptions(args);
         random.setSeed(1000L);
@@ -38,54 +54,61 @@ public class AuctionProducer extends AbstractProducer {
         AuctionProducer ap = new AuctionProducer(AUCTION_TOPIC);
 
         // generate random numbers and insert them
-        long totTuples = sf * tuplesSf;
-        long tupsToCompl = (long) (totTuples * pCompletion);
-        long currTuple = 0;
-        long lostTuples = 0;
+        long totTups = sf * tuplesSf;
+        long totUpds = (long) (totTups * UPD_PERCENTAGE);
+        long tupToCmpl = (long) (totTups * INS_PERCENTAGE * pCompletion);
+        long cntTups = 0, cmplTups = 0, upds = 0, nextId = 0, sent = 0, missed = 0;
 
-        while (currTuple < totTuples || tupsToCompl > 0) {
-            boolean toMiss = false;
-            Auction ao = ap.produceAuction(currTuple, tupsToCompl, totTuples);
-            if (ao != null) {
-                // using key partitioning to ensure that all tuple updates are stored after their creation
-                int tupPart = ao.getId().intValue()%NUM_PARTS;
-                if (currTuple > totTuples * pSuccess ) {
-                    if (tupPart < missParts) {
-                        toMiss = true;
-                    }
-                }
-                if (!toMiss){
-                    logger.debug(ao.toJson());
-                    ap.sendKafka(tupPart, ao.getId(), ao.getTs(), ao.toJson());
+        while (cntTups < totTups || tupToCmpl > cmplTups) {
+            if (cntTups < totTups) {
+                long ts = System.currentTimeMillis();
+                long updId = ap.getRandomProducedId();
+                boolean toUpd = random.nextBoolean() && upds < totUpds && updId >=0;
+                Auction ao;
+                if (toUpd) {
+                    ao = new Auction(updId, String.format("AuctionObject-%d", updId), ts);
+                    logger.debug(String.format("New update %s", ao.toJson()));
+                    upds++;
                 } else {
-                    lostTuples ++;
+                    ao = new Auction(nextId, String.format("AuctionObject-%d", nextId), ts);
+                    ap.auctionsProduced.add(nextId);
+                    logger.debug(String.format("New tuple: %s", ao.toJson()));
+                    nextId++;
                 }
+                // send to kafka
+                if (ap.sendToKafka(ao, totTups, cntTups)) missed++;
+                else sent++;
+                cntTups++;
+            }
 
-                if (ao.getInfo() == null) {
-                    tupsToCompl--;
-                } else {
-                    currTuple++;
-                }
+            // flip coin and start completing
+            if (!ap.auctionsProduced.isEmpty() && random.nextBoolean()) {
+                long idToComplete = ap.auctionsProduced.iterator().next();
+                Auction compAuc = new Auction(idToComplete);
+                compAuc.setTs(System.currentTimeMillis());
+                ap.auctionsProduced.remove(idToComplete);
+                logger.debug(String.format("Complete tuple: %s", compAuc.toJson()));
+                // send to kafka
+                if (ap.sendToKafka(compAuc, totTups, cntTups)) missed++;
+                else sent++;
+                cmplTups++;
             }
         }
+        logger.info(String.format("TotTuples:%d\tNew:%d\tUpd:%d\tCompl:%d", cntTups, nextId, upds, tupToCmpl));
+        logger.info(String.format("TupsSent:%d\tTupsMissed:%d", sent, missed));
         ap.closeProducer();
-        logger.info(String.format("Produced tuples:%d\tCompleted tuples:%1.2f\tLost tuples:%d", currTuple, (totTuples * pCompletion), lostTuples));
     }
 
-    private Auction produceAuction(long currTuples, long tupsToCompl, long totTuples) {
-        Auction newAuction = null;
-        long currTs = System.currentTimeMillis();
-        if (tupsToCompl > 0 && !this.auctionsProduced.isEmpty() && random.nextBoolean()) {
-            long idToComplete = this.auctionsProduced.iterator().next();
-            newAuction = new Auction(idToComplete);
-            newAuction.setTs(currTs);
-            this.auctionsProduced.remove(idToComplete);
-        } else if (currTuples < totTuples) {
-            newAuction = new Auction(currTuples);
-            this.auctionsProduced.add(currTuples);
-            newAuction.setInfo(String.format("AuctionObject-%d", currTuples));
-            newAuction.setTs(currTs);
+    public boolean sendToKafka(Auction au, long totTups, long cntTups) {
+        boolean toMiss = totTups * pSuccess < cntTups && au.getId()%NUM_PARTS < missParts;
+        if (toMiss) {
+            logger.debug("Missing tuple:" + au.toJson());
+//            sendKafka((int)(au.getId()%NUM_PARTS), au.getId(), au.getTs(), au.toJson());
         }
-        return newAuction;
+        else {
+            logger.debug("Sending tuple:" + au.toJson());
+            sendKafka((int)(au.getId()%NUM_PARTS), au.getId(), au.getTs(), au.toJson());
+        }
+        return toMiss;
     }
 }

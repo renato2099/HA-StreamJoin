@@ -50,7 +50,7 @@ public class BidProducer extends AbstractProducer {
             // No punctuacted bid tuples are needed as we can just ignore them if there is no matching auctionObject.
             Integer bidPart = (int) currBids % NUM_PARTS;
             fail = false;
-            if (totBids * pSuccess <= currBids) {
+            if (currBids > totBids * pSuccess - 1) {
                 //if (!partIds.contains(bidPart))
                 if (bidPart < missParts) {
                     fail = true;
