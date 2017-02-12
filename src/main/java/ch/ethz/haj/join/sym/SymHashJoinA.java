@@ -1,5 +1,6 @@
 package ch.ethz.haj.join.sym;
 
+import ch.ethz.haj.KafkaConfig;
 import ch.ethz.haj.consumer.AbstractConsumer;
 import ch.ethz.haj.model.Auction;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -40,6 +41,10 @@ public class SymHashJoinA implements Callable<Map<Long, Set<String>>> {
             this.matchTups = new HashMap<Long, Set<String>>();
             for (ConsumerRecord<Long, String> r : records) {
                 Long recId = r.key();
+                // skipping <lost> partitions as we can't do any guarantees on them
+                if (recId%KafkaConfig.NUM_PARTS < KafkaConfig.missParts)
+                    continue;
+
                 // check if done
                 Auction tmpAuction = new Auction(r.value());
                 if (tmpAuction.getInfo() == null) {

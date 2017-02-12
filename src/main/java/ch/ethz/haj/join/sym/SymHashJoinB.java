@@ -1,8 +1,11 @@
 package ch.ethz.haj.join.sym;
 
+import ch.ethz.haj.KafkaConfig;
 import ch.ethz.haj.consumer.AbstractConsumer;
 import ch.ethz.haj.model.Bid;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.log4j.spi.LoggerFactory;
+import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -17,6 +20,7 @@ public class SymHashJoinB implements Callable<Map<Long, Set<String>>> {
     private final ConcurrentHashMap<Long, Set<String>> relB;
     private final AbstractConsumer relConsumer;
     private HashMap<Long, Set<String>> matchTups;
+    private Logger logger;
 
     public SymHashJoinB(ConcurrentHashMap<Long, String> relA, ConcurrentHashMap<Long, Set<String>> relB,
                         AbstractConsumer relBCon, ConcurrentHashMap<Long, Long> objsDone) {
@@ -24,6 +28,7 @@ public class SymHashJoinB implements Callable<Map<Long, Set<String>>> {
         this.relB = relB;
         this.relConsumer = relBCon;
         this.objsDone = objsDone;
+        this.logger = org.slf4j.LoggerFactory.getLogger(SymHashJoinB.class);
 
     }
 
@@ -34,6 +39,7 @@ public class SymHashJoinB implements Callable<Map<Long, Set<String>>> {
             this.matchTups = new HashMap<Long, Set<String>>();
             for (ConsumerRecord<Long, String> r: records) {
                 Bid b = new Bid(r.value());
+
                 // if it's an object done, then ignore
                 if (!objsDone.containsKey(b.getObjId())) {
                     // check if it's a match
@@ -55,6 +61,7 @@ public class SymHashJoinB implements Callable<Map<Long, Set<String>>> {
                 }
             }
         }
+        logger.debug(String.format("RelB contains %d records", relB.size()));
         return matchTups;
     }
 }
