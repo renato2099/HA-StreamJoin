@@ -11,10 +11,6 @@ import java.util.Random;
  * Created by marenato on 02.02.17.
  */
 public class AuctionProducer extends AbstractProducer {
-
-    private static final int NUM_PARTS = 16;
-    // TODO do failures
-    private static final double BEGIN_FAIL = 0.1;
     private static Logger logger = LoggerFactory.getLogger(AuctionProducer.class);
     private static Random random = new Random();
     private HashSet<Long> auctionsProduced;
@@ -43,8 +39,6 @@ public class AuctionProducer extends AbstractProducer {
         return -1L;
     }
 
-    public static final double UPD_PERCENTAGE = 0.3;
-    public static final double INS_PERCENTAGE = 1.0 - UPD_PERCENTAGE;
     public static void main(String[] args) {
         parseOptions(args);
         random.setSeed(1000L);
@@ -63,7 +57,7 @@ public class AuctionProducer extends AbstractProducer {
             if (cntTups < totTups) {
                 long ts = System.currentTimeMillis();
                 long updId = ap.getRandomProducedId();
-                boolean toUpd = random.nextBoolean() && upds < totUpds && updId >=0;
+                boolean toUpd = random.nextBoolean() && upds < totUpds && updId >= 0;
                 Auction ao;
                 if (toUpd) {
                     ao = new Auction(updId, String.format("AuctionObject-%d", updId), ts);
@@ -100,14 +94,13 @@ public class AuctionProducer extends AbstractProducer {
     }
 
     public boolean sendToKafka(Auction au, long totTups, long cntTups) {
-        boolean toMiss = totTups * pSuccess < cntTups && au.getId()%NUM_PARTS < missParts;
+        boolean toMiss = totTups * pSuccess < cntTups && au.getId() % NUM_PARTS < missParts;
         if (toMiss) {
             logger.debug("Missing tuple:" + au.toJson());
-//            sendKafka((int)(au.getId()%NUM_PARTS), au.getId(), au.getTs(), au.toJson());
-        }
-        else {
+            // NOT TO DO: sendKafka((int)(au.getId()%NUM_PARTS), au.getId(), au.getTs(), au.toJson());
+        } else {
             logger.debug("Sending tuple:" + au.toJson());
-            sendKafka((int)(au.getId()%NUM_PARTS), au.getId(), au.getTs(), au.toJson());
+            sendKafka((int) (au.getId() % NUM_PARTS), au.getId(), au.getTs(), au.toJson());
         }
         return toMiss;
     }

@@ -15,6 +15,8 @@ public class AbstractProducer extends KafkaConfig {
     // Kafka producer
     protected KafkaProducer<Long, String> producer;
     private volatile boolean running = true;
+    public static final double UPD_PERCENTAGE = 0.3;
+    public static final double INS_PERCENTAGE = 1.0 - UPD_PERCENTAGE;
 
     /**
      * KafkaProducer constructor

@@ -1,5 +1,6 @@
 package ch.ethz.haj.producer;
 
+import ch.ethz.haj.KafkaConfig;
 import ch.ethz.haj.model.Bid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class BidProducer extends AbstractProducer {
         Set<Integer> partIds = chooseFailingPartitions(missParts);
 
         // generate bids uniformly distributed along the auctioned objects
-        long nAuctionObjs = sf * tuplesSf;
+        long nAuctionObjs = (long) (sf * tuplesSf * INS_PERCENTAGE);
         long totBids = nAuctionObjs * bidRatio;
         long currBids = 0, tProduced = 0, tFailed = 0;
         boolean fail;
