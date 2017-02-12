@@ -17,7 +17,7 @@ public class AbstractConsumer extends KafkaConfig {
 
     public static int POLL_TIMEOUT = 5;
     // default tuple batch size
-    public static int BATCH_SZ = 100;
+    public static int BATCH_SZ = 1000;
     public Queue<ConsumerRecord<Long, String>> buffer;
     // logger
     public Logger logger;
