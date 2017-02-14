@@ -20,12 +20,17 @@ if 'threading' in sys.modules:
 
 logging.basicConfig()
 
+
 def populate():
-   aParams = "kafka={0}:9092 zk={0}:2181 missing={1} sf={2} tuples={3} pcompletion={4} psuccess={5}".format(Config.server, Config.missing, Config.tuples, Config.pcompletion, Config.psuccess)
-   
-   aClient = ThreadedClients([Config.server], "java -jar {0}/{1}.jar {2}".format(Config.jarpath, Config.aproducer, aParams))
-   aClient.start()
-   aClient.join()
+   checkTopics()
+   #aParams = "kafka={0}:9092 zk={0}:2181 missing={1} sf={2} tuples={3} pcompletion={4} psuccess={5}".format(Config.server, Config.missing, Config.tuples, Config.pcompletion, Config.psuccess)
+   #
+   #aClient = ThreadedClients([Config.server], "java -jar {0}/{1}.jar {2}".format(Config.jarpath, Config.aproducer, aParams))
+   #aClient.start()
+   #aClient.join()
+   print "WORKING AND WORKING"
+   print
+   time.sleep(3)
 
 def execApp(approach):
     print approach
@@ -41,7 +46,7 @@ def runExperiments(approaches):
         # run
         print "experiments with some settings"
         populate()
-        execApp(a)
+        #execApp(a)
         # kill running services
         for c in clients:
             c.kill()

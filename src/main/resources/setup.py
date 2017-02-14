@@ -23,11 +23,24 @@ logging.basicConfig()
 
 def confZk():
     # TODO configure zk properties file?
-    deleteClient = ThreadedClients([Config.server], "rm -rf {0}".format(Config.zk_dir), root=True)
-    deleteClient.start()
-    deleteClient.join()
+    print "Configuring something not specified yet"
+
+def confKafka():
+    # TODO configure kafka properties file?
+    print "Configuring something not specified yet"
+
+def cleanDirs():
+    # Clean zk dirs
+    dClient = ThreadedClients([Config.server], "rm -rf {0}".format(Config.zk_dir), root=True)
+    dClient.start()
+    dClient.join()
+    # Clean kafka dirs
+    dClient2 = ThreadedClients([Config.server], "rm -rf {0}".format(Config.k_dir), root=True)
+    dClient2.start()
+    dClient2.join()
 
 def startZk():
+    confZk()
     observer = Observer("binding to port")
     zk_cmd = '{0}/bin/zookeeper-server-start.sh {0}/config/{1}'.format(Config.exec_path, Config.zk_config)
     zkClient = ThreadedClients([Config.server], zk_cmd, root=True, observers=[observer])
@@ -37,11 +50,7 @@ def startZk():
     return zkClient
 
 def startKafka():
-    # remove data folder
-    deleteClient = ThreadedClients([Config.server], "rm -rf {0}".format(Config.k_dir), root=True)
-    deleteClient.start()
-    deleteClient.join()
-
+    confKafka()
     # Start Kafka
     observer = Observer("started (kafka.server.KafkaServer)")
     k_cmd = '{0}/bin/kafka-server-start.sh {0}/config/{1}'.format(Config.exec_path, Config.k_config)
@@ -51,24 +60,34 @@ def startKafka():
     return kClient
 
 def startSetup():
+    cleanDirs()
     # start zk
     zkClient = startZk()
+    time.sleep(3)
     # start kafka
     kafkaClient = startKafka()
+    time.sleep(3)
     # create topics
     createTopic('bid-topic', Config.partitions, Config.exec_path, Config.server)
     createTopic('auction-topic', Config.partitions, Config.exec_path, Config.server)    
     return [kafkaClient] + [zkClient]
+    #return [zkClient]
 
 def stopSetup():
     # stop kafka
-    stopZkClient = ThreadedClients([Config.server], "{0}/bin/zookeeper-server-stop.sh".format(Config.exec_path))
-    stopZkClient.start()
-    stopZkClient.join()
-    # stop zk
     stopKafkaClient = ThreadedClients([Config.server], "{0}/bin/kafka-server-stop.sh".format(Config.exec_path))
     stopKafkaClient.start()
     stopKafkaClient.join()
+    # stop zk
+    stopZkClient = ThreadedClients([Config.server], "{0}/bin/zookeeper-server-stop.sh".format(Config.exec_path))
+    stopZkClient.start()
+    stopZkClient.join()
+
+def checkTopics():
+    chkCmd = '{0}/bin/kafka-topics.sh --list --zookeeper {1}:2181'.format(Config.exec_path, Config.server)
+    chkClient = ThreadedClients([Config.server], chkCmd, root=True)
+    chkClient.start()
+    chkClient.join()
 
 def createTopic(tName, nParts, ePath, server):
     # TODO Change zk default port?
