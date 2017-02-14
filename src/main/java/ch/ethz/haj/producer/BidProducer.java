@@ -65,7 +65,7 @@ public class BidProducer extends AbstractProducer {
             }
             currBids++;
         }
-        logger.info(String.format("Tuples sent: %d\t Tuples failed: %d", tProduced, tFailed));
+        logger.info(String.format("[BProducer] Tuples sent: %d\t Tuples failed: %d", tProduced, tFailed));
         bp.closeProducer();
     }
 

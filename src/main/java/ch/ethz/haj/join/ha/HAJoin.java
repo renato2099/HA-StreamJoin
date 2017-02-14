@@ -22,6 +22,7 @@ public class HAJoin extends Join {
     }
 
     public static void main(String[] args) {
+        parseOptions(args);
         HAJoin hajoin = new HAJoin(new AuctionConsumer(), new BidConsumer());
         try {
             hajoin.startJoin();

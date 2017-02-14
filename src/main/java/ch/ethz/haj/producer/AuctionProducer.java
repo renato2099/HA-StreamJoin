@@ -88,8 +88,8 @@ public class AuctionProducer extends AbstractProducer {
                 cmplTups++;
             }
         }
-        logger.info(String.format("TotTuples:%d\tNew:%d\tUpd:%d\tCompl:%d", cntTups, nextId, upds, cmplTups));
-        logger.info(String.format("TupsSent:%d\tTupsMissed:%d", sent, missed));
+        logger.info(String.format("[AProducer] TotTuples:%d\tNew:%d\tUpd:%d\tCompl:%d", cntTups, nextId, upds, cmplTups));
+        logger.info(String.format("[AProducer] TupsSent:%d\tTupsMissed:%d", sent, missed));
         ap.closeProducer();
     }
 
