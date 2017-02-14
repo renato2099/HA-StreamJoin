@@ -5,7 +5,7 @@ class Config:
     partitions  = 16
     sf          = 1
     tuples      = 5
-    bid_ratio   = 2
+    bratio      = 2
     zk_dir      = '/tmp/zookeeper'
     zk_config   = 'zookeeper.properties'
     k_dir       = '/tmp/kafka-logs'
@@ -18,5 +18,5 @@ class Config:
     bproducer   = 'bid-producer'
     pjoin       = 'pjoin'
     hajoin      = 'hajoin'
-    jarpath     = ''
+    jarpath     = '/mnt/SG/marenato/HA-StreamJoin/target/'
 

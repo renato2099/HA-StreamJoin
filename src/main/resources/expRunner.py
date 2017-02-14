@@ -20,20 +20,34 @@ if 'threading' in sys.modules:
 
 logging.basicConfig()
 
+javaCmd = "java -jar {0}/{1}.jar {2}"
+doneStr = "----- {0} DONE -----"
 
 def populate():
    checkTopics()
-   #aParams = "kafka={0}:9092 zk={0}:2181 missing={1} sf={2} tuples={3} pcompletion={4} psuccess={5}".format(Config.server, Config.missing, Config.tuples, Config.pcompletion, Config.psuccess)
-   #
-   #aClient = ThreadedClients([Config.server], "java -jar {0}/{1}.jar {2}".format(Config.jarpath, Config.aproducer, aParams))
-   #aClient.start()
-   #aClient.join()
-   print "WORKING AND WORKING"
-   print
+   params = "kafka={0}:9092 zk={0}:2181 missing={1} sf={2} tuples={3} pcompletion={4} psuccess={5} bid_ratio={6} > {7}.{1}.log"
+   aPa = params.format(Config.server, Config.missing, Config.tuples, Config.pcompletion, Config.psuccess, Config.bratio, "auctionProducer")
+   bPa = params.format(Config.server, Config.missing, Config.tuples, Config.pcompletion, Config.psuccess, Config.bratio, "bidProducer")
+
+   # populating auctions
+   aC = ThreadedClients([Config.server], javaCmd.format(Config.jarpath, Config.aproducer, aPa))
+   aC.start()
+   aC.join()
+
+   # populating bids
+   bC = ThreadedClients([Config.server], javaCmd.format(Config.jarpath, Config.bproducer, bPa))
+   bC.start()
+   bC.join()
+   print doneStr.format("POPULATION")
    time.sleep(3)
 
 def execApp(approach):
-    print approach
+    jParams = "kafka={0}:9092 zk={0}:2181 missing={1} > {2}.{1}.log"
+    jPa = jParams.format(Config.server, Config.missing, approach)
+    jC = ThreadedClients([Config.server], javaCmd.format(Config.jarpath, Config.pjoin, jPa))
+    jC.start()
+    jC.join()
+    print doneStr.format(approach)
 
 def runExperiments(approaches):
     for a in approaches:
@@ -46,7 +60,7 @@ def runExperiments(approaches):
         # run
         print "experiments with some settings"
         populate()
-        #execApp(a)
+        execApp(a)
         # kill running services
         for c in clients:
             c.kill()
