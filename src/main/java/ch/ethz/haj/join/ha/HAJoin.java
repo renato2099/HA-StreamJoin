@@ -3,14 +3,10 @@ package ch.ethz.haj.join.ha;
 import ch.ethz.haj.consumer.AuctionConsumer;
 import ch.ethz.haj.consumer.BidConsumer;
 import ch.ethz.haj.join.Join;
-import ch.ethz.haj.join.sym.SymHashJoinA;
-import ch.ethz.haj.join.sym.SymHashJoinB;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by marenato on 08.02.17.
@@ -67,7 +63,7 @@ public class HAJoin extends Join {
             prevJs =joinState.size();
         }
 
-        logger.info(String.format("RelA:%d\tRelB:%d\tJoinState:k=%d tups=%d", relA.size(), relB.size(), joinState.size(), getJoinStateTuples()));
+        logger.info(String.format("RelA:%d\tRelB:%d\tJoinState:k=%d tups=%d", getSzA(), getSzB(), joinState.size(), getJsSz()));
         long t1 = System.currentTimeMillis();
         logger.info(String.format("Joining took: %s msecs", (t1-t0)));
         if (logger.isDebugEnabled()) {
@@ -77,24 +73,6 @@ public class HAJoin extends Join {
 //            dumpRelation(relA);
 //            System.out.println("====================== RelB ======================");
 //            dumpJoinState(relB);
-        }
-    }
-
-    private void updateJoinState(ConcurrentHashMap<Long, Long> objsDone) {
-        Iterator<Map.Entry<Long, Long>> it = objsDone.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<Long, Long> entry = it.next();
-            if (joinState.containsKey(entry.getKey())) {
-                joinState.remove(entry.getKey());
-                // we can just leave this as an increasing set so we can keep avoiding those tuples
-                //objsDone.remove(entry.getKey());
-            }
-            if (relA.containsKey(entry.getKey())) {
-                relA.remove(entry.getKey());
-            }
-            if (relB.containsKey(entry.getKey())) {
-                relB.remove(entry.getKey());
-            }
         }
     }
 }

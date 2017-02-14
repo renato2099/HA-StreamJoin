@@ -4,6 +4,7 @@ import ch.ethz.haj.KafkaConfig;
 import ch.ethz.haj.consumer.AbstractConsumer;
 import org.slf4j.Logger;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,7 +52,7 @@ public class Join extends KafkaConfig {
         }
     }
 
-    public long getJoinStateTuples() {
+    public long getJsSz() {
         long nTuples = 0;
         for (Map.Entry<Long, Set<String>> entry : joinState.entrySet()) {
             nTuples += entry.getValue().size();
@@ -82,5 +83,35 @@ public class Join extends KafkaConfig {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public void updateJoinState(ConcurrentHashMap<Long, Long> objsDone) {
+        Iterator<Map.Entry<Long, Long>> it = objsDone.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<Long, Long> entry = it.next();
+            if (joinState.containsKey(entry.getKey())) {
+                joinState.remove(entry.getKey());
+                // we can just leave this as an increasing set so we can keep avoiding those tuples
+                //objsDone.remove(entry.getKey());
+            }
+            if (relA.containsKey(entry.getKey())) {
+                relA.remove(entry.getKey());
+            }
+            if (relB.containsKey(entry.getKey())) {
+                relB.remove(entry.getKey());
+            }
+        }
+    }
+
+    public int getSzA() {
+        return relA.size();
+    }
+
+    public int getSzB() {
+        int nTuples = 0;
+        for (Map.Entry<Long, Set<String>> e: relB.entrySet()) {
+            nTuples += e.getValue().size();
+        }
+        return nTuples;
     }
 }
