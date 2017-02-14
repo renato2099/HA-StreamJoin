@@ -61,9 +61,9 @@ public class PJoin extends Join {
             prevB = relB.size();
             prevJs =joinState.size();
         }
-        logger.info(String.format("RelA:%d\tRelB:%d\tJoinState:k=%d tups=%d", getSzA(), getSzB(), joinState.size(), getJsSz()));
+        logger.info(String.format("[PJoin-%d] RelA:%d\tRelB:%d\tJoinState:k=%d tups=%d", missParts, getSzA(), getSzB(), joinState.size(), getJsSz()));
         long t1 = System.currentTimeMillis();
-        logger.info(String.format("Joining took: %s msecs", (t1-t0)));
+        logger.info(String.format("[PJoin-%d] Joining took: %s msecs", missParts, (t1-t0)));
         if (logger.isDebugEnabled())
             dumpJoinState(joinState);
     }

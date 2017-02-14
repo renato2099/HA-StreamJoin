@@ -63,9 +63,9 @@ public class HAJoin extends Join {
             prevJs =joinState.size();
         }
 
-        logger.info(String.format("RelA:%d\tRelB:%d\tJoinState:k=%d tups=%d", getSzA(), getSzB(), joinState.size(), getJsSz()));
+        logger.info(String.format("[HAJoin-%d] RelA:%d\tRelB:%d\tJoinState:k=%d tups=%d", missParts, getSzA(), getSzB(), joinState.size(), getJsSz()));
         long t1 = System.currentTimeMillis();
-        logger.info(String.format("Joining took: %s msecs", (t1-t0)));
+        logger.info(String.format("[HAJoin-%d] Joining took: %s msecs", missParts, (t1-t0)));
         if (logger.isDebugEnabled()) {
             System.out.println("====================== JS ======================");
             dumpJoinState(joinState);
