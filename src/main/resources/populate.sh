@@ -3,7 +3,7 @@
 NPARTS=16
 MPARTS=0
 TUPLES=1000
-PCOMPL=0.1
+PCOMPL=0.01
 PSUCC=0.5
 
 KAFKA_HOME=/home/marenato/Documents/Apache/Kafka/kafka_2.11-0.10.1.0
@@ -47,7 +47,9 @@ java -jar $JARS/target/bid-producer.jar kafka=localhost:9092 zk=localhost:2181 m
 
 echo "Joining with ${MPARTS} lost"
 java -jar $JARS/target/pjoin.jar kafka=localhost:9092 zk=localhost:2181 missing=$MPARTS > join.${MPARTS}.log
+echo "# PJOIN #"
 cat join.${MPARTS}.log | grep "JoinState:k"
 
-#java -jar $JARS/target/hajoin.jar kafka=localhost:9092 zk=localhost:2181 missing=$MPARTS > hajoin.${MPARTS}.log
-#cat hajoin.${MPARTS}.log | grep "JoinState:k"
+java -jar $JARS/target/hajoin.jar kafka=localhost:9092 zk=localhost:2181 missing=$MPARTS > hajoin.${MPARTS}.log
+echo "# HAJOIN #"
+cat hajoin.${MPARTS}.log | grep "JoinState:k"
