@@ -1,6 +1,5 @@
 package ch.ethz.haj.producer;
 
-import ch.ethz.haj.KafkaConfig;
 import ch.ethz.haj.model.Bid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

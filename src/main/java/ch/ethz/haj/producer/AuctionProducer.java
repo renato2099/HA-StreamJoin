@@ -49,8 +49,8 @@ public class AuctionProducer extends AbstractProducer {
 
         // generate random numbers and insert them
         long totTups = sf * tuplesSf;
-        long totUpds = (long) (totTups * UPD_PERCENTAGE);
-        long tupToCmpl = (long) (totTups * INS_PERCENTAGE * pCompletion);
+        long totUpds = (long) (totTups * pUpd);
+        long tupToCmpl = (long) (totTups * pIns * pCompletion);
         long cntTups = 0, cmplTups = 0, upds = 0, nextId = 0, sent = 0, missed = 0;
 
         while (cntTups < totTups || tupToCmpl > cmplTups) {

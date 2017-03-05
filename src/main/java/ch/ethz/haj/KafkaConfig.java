@@ -19,6 +19,9 @@ public abstract class KafkaConfig {
     // Porcentage of tuples produced until failures start happening
     public static final double SUCCESS_TUPS = 1.0;
     public static final int NUM_PARTS = 16;
+    // Porcentage of new tuples and updates
+    public static final double UPD_PERCENTAGE = 0.3;
+    public static final double INS_PERCENTAGE = 1.0 - UPD_PERCENTAGE;
     // Kafka serializer/deserializer classes
     public static final String KEY_SERIALIZER = LongSerializer.class.getCanonicalName();
     public static final String KEY_DESERIALIZER = LongDeserializer.class.getCanonicalName();
@@ -36,6 +39,8 @@ public abstract class KafkaConfig {
     public static int bidRatio = BID_RATIO;
     public static double pCompletion = PCOMPLETION;
     public static double pSuccess = SUCCESS_TUPS;
+    public static double pIns = INS_PERCENTAGE;
+    public static double pUpd = UPD_PERCENTAGE;
     // kafka topic
     public String kafkaTopic;
     // kafka consumer groupId
@@ -78,14 +83,20 @@ public abstract class KafkaConfig {
                     case PSUCCESS:
                         pSuccess = Double.parseDouble(val);
                         break;
+                    case PUPD:
+                        pUpd = Double.parseDouble(val);
+                        pIns = 1.0 - pUpd;
+                        break;
                 }
+            } else {
+                throw new IllegalStateException(String.format("[%s] Parameter not recognized.", opt));
             }
         }
     }
 
     public enum KafkaOpts {
         KAFKA("kafka"), ZK("zk"), MISSING("missing"), SF("sf"), TUPLES("tuples"),
-        BID_RATIO("bid_ratio"), PCOMPLETION("pcompletion"), PSUCCESS("psuccess");
+        BID_RATIO("bid_ratio"), PCOMPLETION("pcompletion"), PSUCCESS("psuccess"), PUPD("pupd");
         String value;
 
         KafkaOpts(String v) {
