@@ -63,6 +63,7 @@ public class BidProducer extends AbstractProducer {
                 bp.sendKafka(bidPart, bid.getId(), bid.getTs(), bid.toJson());
                 tProduced ++;
             }
+            // TODO send non-usable tuple
             currBids++;
         }
         logger.info(String.format("[BProducer] Tuples sent: %d\t Tuples failed: %d", tProduced, tFailed));

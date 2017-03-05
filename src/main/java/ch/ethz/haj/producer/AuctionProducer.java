@@ -97,6 +97,7 @@ public class AuctionProducer extends AbstractProducer {
         boolean toMiss = totTups * pSuccess < cntTups && au.getId() % NUM_PARTS < missParts;
         if (toMiss) {
             logger.debug("Missing tuple:" + au.toJson());
+            // TODO send non-usable tuple
             // NOT TO DO: sendKafka((int)(au.getId()%NUM_PARTS), au.getId(), au.getTs(), au.toJson());
         } else {
             logger.debug("Sending tuple:" + au.toJson());
